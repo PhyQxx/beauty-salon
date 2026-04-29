@@ -37,10 +37,10 @@ public class SysUserController {
      */
     @ApiOperation("用户登录")
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(
-            @ApiParam(value = "用户名", required = true) @RequestParam String username,
-            @ApiParam(value = "密码", required = true) @RequestParam String password) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginRequest) {
         try {
+            String username = loginRequest.get("username");
+            String password = loginRequest.get("password");
             Map<String, Object> result = userService.login(username, password);
             return ResponseEntity.ok(result);
         } catch (RuntimeException e) {

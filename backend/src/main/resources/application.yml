@@ -1,6 +1,6 @@
 # 应用配置
 server:
-  port: 8080
+  port: 19084
   servlet:
     context-path: /api
 
@@ -9,18 +9,23 @@ spring:
   application:
     name: beauty-salon-backend
 
+  # 解决 Springfox 3.0.0 与 Spring Boot 2.6+ 的兼容性问题
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/beauty_salon?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://mysql.pnkx.top:13306/beauty_salon?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    password: root123456
+    password: 123456
 
   # Redis 配置
   redis:
     host: localhost
     port: 6379
-    password: # 请修改为安全的Redis密码，生产环境必须设置 
+    password: # 请修改为安全的Redis密码，生产环境必须设置
     database: 0
     timeout: 5000
     lettuce:
