@@ -1,0 +1,25 @@
+# compiled output
+backend/target/
+frontend/dist/
+
+# node_modules
+frontend/node_modules/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# env
+.env
+.env.local
