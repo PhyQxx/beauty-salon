@@ -3,7 +3,7 @@ package com.beautysalon.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  * 客户更新请求DTO
@@ -37,7 +37,7 @@ public class CustomerUpdateDTO {
      * 出生日期
      */
     @ApiModelProperty(value = "出生日期")
-    private LocalDateTime birthday;
+    private LocalDate birthday;
 
     /**
      * 会员等级：1-普通会员，2-银卡会员，3-金卡会员，4-钻石会员

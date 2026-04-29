@@ -3,6 +3,7 @@ package com.beautysalon.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -39,7 +40,7 @@ public class CrmCustomer {
     /**
      * 出生日期
      */
-    private LocalDateTime birthday;
+    private LocalDate birthday;
 
     /**
      * 会员等级：1-普通会员，2-银卡会员，3-金卡会员，4-钻石会员

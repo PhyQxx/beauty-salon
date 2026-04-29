@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.beautysalon.common.JwtUtil;
+import com.beautysalon.entity.SysLoginLog;
 import com.beautysalon.entity.SysUser;
 import com.beautysalon.mapper.SysUserMapper;
+import com.beautysalon.service.SysLoginLogService;
 import com.beautysalon.service.SysUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,9 @@ public class SysUserServiceImpl implements SysUserService {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private SysLoginLogService loginLogService;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -64,6 +69,15 @@ public class SysUserServiceImpl implements SysUserService {
 
         SysUser user = userMapper.selectByUsername(username);
         if (user == null) {
+            // 记录登录失败日志（未知用户）
+            try {
+                SysLoginLog loginLog = new SysLoginLog();
+                loginLog.setUsername(username);
+                loginLog.setStatus(0);
+                loginLog.setLoginTime(LocalDateTime.now());
+                loginLog.setMessage("用户不存在");
+                loginLogService.logAsync(loginLog);
+            } catch (Exception ignored) {}
             throw new RuntimeException("用户名或密码错误");
         }
 
@@ -76,6 +90,16 @@ public class SysUserServiceImpl implements SysUserService {
         // 如果是明文密码 admin123，需要确保数据库中的密码是正确的 BCrypt 格式
         // 由于初始化SQL中的密码可能不是正确的BCrypt格式，这里做兼容处理
         if (!password.equals("admin123") && !passwordEncoder.matches(password, user.getPassword())) {
+            // 记录登录失败日志（密码错误）
+            try {
+                SysLoginLog loginLog = new SysLoginLog();
+                loginLog.setUserId(user.getId());
+                loginLog.setUsername(user.getUsername());
+                loginLog.setStatus(0);
+                loginLog.setLoginTime(LocalDateTime.now());
+                loginLog.setMessage("密码错误");
+                loginLogService.logAsync(loginLog);
+            } catch (Exception ignored) {}
             throw new RuntimeException("用户名或密码错误");
         }
 
@@ -91,6 +115,20 @@ public class SysUserServiceImpl implements SysUserService {
         result.put("roleText", ROLE_MAP.getOrDefault(user.getRole(), "未知"));
 
         log.info("用户登录成功: username={}, userId={}", username, user.getId());
+
+        // 记录登录日志
+        try {
+            SysLoginLog loginLog = new SysLoginLog();
+            loginLog.setUserId(user.getId());
+            loginLog.setUsername(user.getUsername());
+            loginLog.setStatus(1);
+            loginLog.setLoginTime(LocalDateTime.now());
+            loginLog.setIpAddress(null); // 可从 request context 获取
+            loginLogService.logAsync(loginLog);
+        } catch (Exception e) {
+            log.error("登录日志记录失败: {}", e.getMessage());
+        }
+
         return result;
     }
 

@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -44,7 +45,7 @@ public class CustomerVO {
      * 出生日期
      */
     @ApiModelProperty(value = "出生日期")
-    private LocalDateTime birthday;
+    private LocalDate birthday;
 
     /**
      * 年龄

@@ -32,6 +32,13 @@
           <el-menu-item index="/coupon">
             <span>优惠券管理</span>
           </el-menu-item>
+          <el-divider />
+          <el-menu-item index="/system/permission">
+            <span>🛡️ 权限管理</span>
+          </el-menu-item>
+          <el-menu-item index="/system/log">
+            <span>📋 日志管理</span>
+          </el-menu-item>
         </el-menu>
       </el-aside>
 

@@ -15,6 +15,8 @@ import Service from '@/views/Service.vue'
 import MembershipCard from '@/views/MembershipCard.vue'
 import Recharge from '@/views/Recharge.vue'
 import Beautician from '@/views/Beautician.vue'
+import Permission from '@/views/system/Permission.vue'
+import SystemLog from '@/views/system/SystemLog.vue'
 
 // 路由守卫：简单检查是否已登录
 const authGuard = (to, from, next) => {
@@ -96,6 +98,18 @@ const routes = [
     path: '/beautician',
     name: 'Beautician',
     component: Beautician,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/system/permission',
+    name: 'Permission',
+    component: Permission,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/system/log',
+    name: 'SystemLog',
+    component: SystemLog,
     meta: { requiresAuth: true }
   }
 ]

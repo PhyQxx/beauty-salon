@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.HashMap;
@@ -483,7 +484,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         // 计算年龄
         if (customer.getBirthday() != null) {
-            int age = Period.between(customer.getBirthday().toLocalDate(), LocalDateTime.now().toLocalDate()).getYears();
+            int age = Period.between(customer.getBirthday(), LocalDate.now()).getYears();
             vo.setAge(age);
         }
 
