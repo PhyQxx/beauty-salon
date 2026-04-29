@@ -1,0 +1,73 @@
+# 应用配置
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  # 应用名称
+  application:
+    name: beauty-salon-backend
+
+  # 数据源配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/beauty_salon?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: root123456
+
+  # Redis 配置
+  redis:
+    host: localhost
+    port: 6379
+    password: 
+    database: 0
+    timeout: 5000
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1
+
+  # Session 配置
+  session:
+    store-type: redis
+    timeout: 86400
+
+# MyBatis-Plus 配置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.beautysalon.entity
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# JWT 配置
+jwt:
+  secret: beauty-salon-jwt-secret-key-2024
+  expiration: 86400000  # 24小时（毫秒）
+  header: Authorization
+  prefix: Bearer
+
+# Swagger 配置
+springfox:
+  documentation:
+    enabled: true
+    swagger-ui:
+      enabled: true
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.beautysalon: DEBUG
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n'
