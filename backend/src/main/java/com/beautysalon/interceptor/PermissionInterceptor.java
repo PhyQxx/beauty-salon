@@ -65,7 +65,9 @@ public class PermissionInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        // 推导权限码
+        // 推导权限码：baseUri.replace("/", ":") + ":" + action
+        // 但如果 baseUri 末尾已经是 action 本身（如 /appointment/list → appointment:list），
+        // 则不再追加 action 后缀，避免生成 appointment:list:list
         String method = request.getMethod();
         String baseUri = uri.replace("/api/", "").replaceAll("/\\d+$", "");
         String action;
@@ -76,7 +78,14 @@ public class PermissionInterceptor implements HandlerInterceptor {
             case "DELETE": action = "delete"; break;
             default:       action = "";
         }
-        String permissionCode = baseUri.replace("/", ":") + ":" + action;
+        String permissionCode;
+        String[] segments = baseUri.split("/");
+        if (segments.length > 0 && segments[segments.length - 1].equals(action)) {
+            // 路径末尾已是 action（如 /appointment/list），直接用 baseUri 转换
+            permissionCode = baseUri.replace("/", ":");
+        } else {
+            permissionCode = baseUri.replace("/", ":") + ":" + action;
+        }
 
         boolean hasPermission = permissionService.hasPermission(role, permissionCode);
         if (!hasPermission) {

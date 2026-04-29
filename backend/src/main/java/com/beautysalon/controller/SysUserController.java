@@ -1,6 +1,7 @@
 package com.beautysalon.controller;
 
 import com.beautysalon.common.JwtUtil;
+import com.beautysalon.config.JwtAuthenticationFilter;
 import com.beautysalon.entity.SysUser;
 import com.beautysalon.service.SysUserService;
 import io.swagger.annotations.Api;
@@ -8,6 +9,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -17,8 +20,6 @@ import java.util.Map;
 /**
  * 系统用户管理 Controller
  * 负责用户登录、登出、CRUD等操作
- *
- * @author BeautySalon Team
  */
 @Slf4j
 @Api(tags = "系统用户管理")
@@ -32,225 +33,190 @@ public class SysUserController {
     @Resource
     private JwtUtil jwtUtil;
 
-    /**
-     * 用户登录
-     */
     @ApiOperation("用户登录")
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginRequest) {
+        String username = loginRequest.get("username");
+        String password = loginRequest.get("password");
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            return badRequest("用户名和密码不能为空");
+        }
         try {
-            String username = loginRequest.get("username");
-            String password = loginRequest.get("password");
             Map<String, Object> result = userService.login(username, password);
+            result.put("code", 200);
             return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("code", 401);
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(401).body(error);
+            return unauthorized(e.getMessage());
         }
     }
 
-    /**
-     * 用户登出
-     */
     @ApiOperation("用户登出")
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, Object>> logout(
-            @ApiParam(value = "Token", required = true) @RequestHeader(value = "Authorization", required = false) String token) {
-        try {
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7);
-            }
-            userService.logout(token);
-            Map<String, Object> result = new HashMap<>();
-            result.put("code", 200);
-            result.put("message", "登出成功");
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("code", 500);
-            error.put("message", e.getMessage());
-            return ResponseEntity.ok(error);
+    public ResponseEntity<Map<String, Object>> logout() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            log.info("用户登出: {}", auth.getName());
         }
+        SecurityContextHolder.clearContext();
+        return ok("登出成功");
     }
 
-    /**
-     * 获取当前登录用户信息
-     */
     @ApiOperation("获取当前用户信息")
     @GetMapping("/info")
-    public ResponseEntity<Map<String, Object>> getCurrentUser(
-            @ApiParam(value = "Token", required = true) @RequestHeader(value = "Authorization", required = false) String token) {
-        try {
-            // 从token中解析用户信息
-            if (token == null || !token.startsWith("Bearer ")) {
-                throw new RuntimeException("无效的Token");
-            }
-            token = token.substring(7);
-            if (jwtUtil.isTokenExpired(token)) {
-                throw new RuntimeException("Token已过期");
-            }
-            Long userId = jwtUtil.getUserIdFromToken(token);
-            SysUser user = userService.getUserById(userId);
-            Map<String, Object> result = new HashMap<>();
-            result.put("code", 200);
-            result.put("message", "获取成功");
-            result.put("data", user);
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("code", 401);
-            error.put("message", e.getMessage());
-            return ResponseEntity.status(401).body(error);
+    public ResponseEntity<Map<String, Object>> getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            return unauthorized("未登录或Token无效");
         }
+        JwtAuthenticationFilter.JwtAuthDetails details =
+                (JwtAuthenticationFilter.JwtAuthDetails) auth.getDetails();
+        if (details == null) {
+            return unauthorized("认证信息异常");
+        }
+        Long userId = toLong(details.getUserId());
+        if (userId == null) {
+            return unauthorized("无法获取用户ID");
+        }
+        SysUser user = userService.getUserById(userId);
+        if (user == null) {
+            return notFound("用户不存在");
+        }
+        // 脱敏：移除密码字段
+        user.setPassword(null);
+        return ok(user, "获取成功");
     }
 
-    /**
-     * 分页查询用户列表
-     */
     @ApiOperation("分页查询用户列表")
     @GetMapping("/list")
     public ResponseEntity<Map<String, Object>> list(
-            @ApiParam(value = "页码", required = false) @RequestParam(defaultValue = "1") Integer page,
-            @ApiParam(value = "每页数量", required = false) @RequestParam(defaultValue = "10") Integer limit,
-            @ApiParam(value = "关键词搜索", required = false) @RequestParam(required = false) String keyword,
-            @ApiParam(value = "角色筛选", required = false) @RequestParam(required = false) Integer role) {
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer limit,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer role) {
         Map<String, Object> result = userService.queryUserPage(page, limit, keyword, role);
         result.put("code", 200);
         result.put("message", "查询成功");
         return ResponseEntity.ok(result);
     }
 
-    /**
-     * 根据ID获取用户详情
-     */
     @ApiOperation("根据ID获取用户详情")
     @GetMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> getById(
-            @ApiParam(value = "用户ID", required = true) @PathVariable Long id) {
-        try {
-            SysUser user = userService.getUserById(id);
-            Map<String, Object> result = new HashMap<>();
-            result.put("code", 200);
-            result.put("message", "查询成功");
-            result.put("data", user);
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("code", 404);
-            error.put("message", e.getMessage());
-            return ResponseEntity.ok(error);
+    public ResponseEntity<Map<String, Object>> getById(@PathVariable Long id) {
+        SysUser user = userService.getUserById(id);
+        if (user == null) {
+            return notFound("用户不存在");
         }
+        user.setPassword(null);
+        return ok(user, "获取成功");
     }
 
-    /**
-     * 新增用户
-     */
     @ApiOperation("新增用户")
     @PostMapping
     public ResponseEntity<Map<String, Object>> save(@RequestBody SysUser user) {
         try {
             Long userId = userService.createUser(user);
-            Map<String, Object> result = new HashMap<>();
-            result.put("code", 200);
-            result.put("message", "创建成功");
-            result.put("data", userId);
-            return ResponseEntity.ok(result);
+            return ok(Map.of("id", userId), "创建成功");
         } catch (RuntimeException e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("code", 500);
-            error.put("message", e.getMessage());
-            return ResponseEntity.ok(error);
+            return badRequest(e.getMessage());
         }
     }
 
-    /**
-     * 更新用户信息
-     */
     @ApiOperation("更新用户信息")
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> update(
-            @ApiParam(value = "用户ID", required = true) @PathVariable Long id,
-            @RequestBody SysUser user) {
-        try {
-            boolean success = userService.updateUser(id, user);
-            Map<String, Object> result = new HashMap<>();
-            result.put("code", success ? 200 : 500);
-            result.put("message", success ? "更新成功" : "更新失败");
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("code", 500);
-            error.put("message", e.getMessage());
-            return ResponseEntity.ok(error);
+    public ResponseEntity<Map<String, Object>> update(@PathVariable Long id, @RequestBody SysUser user) {
+        boolean success = userService.updateUser(id, user);
+        if (!success) {
+            return notFound("用户不存在");
         }
+        return ok("更新成功");
     }
 
-    /**
-     * 删除用户（逻辑删除）
-     */
-    @ApiOperation("删除用户")
+    @ApiOperation("删除用户（逻辑删除）")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> delete(
-            @ApiParam(value = "用户ID", required = true) @PathVariable Long id) {
-        try {
-            boolean success = userService.deleteUser(id);
-            Map<String, Object> result = new HashMap<>();
-            result.put("code", success ? 200 : 500);
-            result.put("message", success ? "删除成功" : "删除失败");
-            return ResponseEntity.ok(result);
-        } catch (RuntimeException e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("code", 500);
-            error.put("message", e.getMessage());
-            return ResponseEntity.ok(error);
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable Long id) {
+        boolean success = userService.deleteUser(id);
+        if (!success) {
+            return notFound("用户不存在");
         }
+        return ok("删除成功");
     }
 
-    /**
-     * 修改密码
-     */
     @ApiOperation("修改密码")
     @PutMapping("/password")
     public ResponseEntity<Map<String, Object>> changePassword(
-            @ApiParam(value = "用户ID", required = true) @RequestParam Long id,
-            @ApiParam(value = "旧密码", required = true) @RequestParam String oldPassword,
-            @ApiParam(value = "新密码", required = true) @RequestParam String newPassword) {
+            @RequestParam Long id,
+            @RequestParam String oldPassword,
+            @RequestParam String newPassword) {
+        if (newPassword == null || newPassword.length() < 6) {
+            return badRequest("新密码长度不能少于6位");
+        }
         try {
-            boolean success = userService.changePassword(id, oldPassword, newPassword);
-            Map<String, Object> result = new HashMap<>();
-            result.put("code", success ? 200 : 500);
-            result.put("message", success ? "密码修改成功" : "密码修改失败");
-            return ResponseEntity.ok(result);
+            userService.changePassword(id, oldPassword, newPassword);
+            return ok("密码修改成功");
         } catch (RuntimeException e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("code", 500);
-            error.put("message", e.getMessage());
-            return ResponseEntity.ok(error);
+            return badRequest(e.getMessage());
         }
     }
 
-    /**
-     * 重置密码
-     */
     @ApiOperation("重置密码")
     @PutMapping("/{id}/reset-password")
     public ResponseEntity<Map<String, Object>> resetPassword(
-            @ApiParam(value = "用户ID", required = true) @PathVariable Long id,
-            @ApiParam(value = "新密码", required = false, defaultValue = "123456") @RequestParam(required = false, defaultValue = "123456") String newPassword) {
+            @PathVariable Long id,
+            @RequestParam(required = false, defaultValue = "123456") String newPassword) {
         try {
-            boolean success = userService.resetPassword(id, newPassword);
-            Map<String, Object> result = new HashMap<>();
-            result.put("code", success ? 200 : 500);
-            result.put("message", success ? "密码重置成功" : "密码重置失败");
-            result.put("data", newPassword);
-            return ResponseEntity.ok(result);
+            userService.resetPassword(id, newPassword);
+            return ok(Map.of("password", newPassword), "密码重置成功");
         } catch (RuntimeException e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("code", 500);
-            error.put("message", e.getMessage());
-            return ResponseEntity.ok(error);
+            return badRequest(e.getMessage());
+        }
+    }
+
+    // ========== 私有辅助方法 ==========
+
+    private ResponseEntity<Map<String, Object>> ok(Object data, String message) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("code", 200);
+        body.put("message", message);
+        body.put("data", data);
+        return ResponseEntity.ok(body);
+    }
+
+    private ResponseEntity<Map<String, Object>> ok(String message) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("code", 200);
+        body.put("message", message);
+        return ResponseEntity.ok(body);
+    }
+
+    private ResponseEntity<Map<String, Object>> badRequest(String message) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("code", 400);
+        body.put("message", message);
+        return ResponseEntity.status(400).body(body);
+    }
+
+    private ResponseEntity<Map<String, Object>> unauthorized(String message) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("code", 401);
+        body.put("message", message);
+        return ResponseEntity.status(401).body(body);
+    }
+
+    private ResponseEntity<Map<String, Object>> notFound(String message) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("code", 404);
+        body.put("message", message);
+        return ResponseEntity.status(404).body(body);
+    }
+
+    private Long toLong(Object value) {
+        if (value == null) return null;
+        if (value instanceof Long) return (Long) value;
+        if (value instanceof Integer) return ((Integer) value).longValue();
+        try {
+            return Long.parseLong(value.toString());
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 }
