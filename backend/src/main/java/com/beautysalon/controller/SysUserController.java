@@ -38,7 +38,7 @@ public class SysUserController {
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginRequest) {
         String username = loginRequest.get("username");
         String password = loginRequest.get("password");
-        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+        if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             return badRequest("用户名和密码不能为空");
         }
         try {
@@ -115,7 +115,9 @@ public class SysUserController {
     public ResponseEntity<Map<String, Object>> save(@RequestBody SysUser user) {
         try {
             Long userId = userService.createUser(user);
-            return ok(Map.of("id", userId), "创建成功");
+            Map<String, Object> data = new HashMap<>();
+            data.put("id", userId);
+            return ok(data, "创建成功");
         } catch (RuntimeException e) {
             return badRequest(e.getMessage());
         }
@@ -165,7 +167,9 @@ public class SysUserController {
             @RequestParam(required = false, defaultValue = "123456") String newPassword) {
         try {
             userService.resetPassword(id, newPassword);
-            return ok(Map.of("password", newPassword), "密码重置成功");
+            Map<String, Object> data = new HashMap<>();
+            data.put("password", newPassword);
+            return ok(data, "密码重置成功");
         } catch (RuntimeException e) {
             return badRequest(e.getMessage());
         }

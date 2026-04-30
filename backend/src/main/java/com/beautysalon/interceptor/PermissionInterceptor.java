@@ -12,7 +12,10 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,17 +26,19 @@ import java.util.Set;
 @Component
 public class PermissionInterceptor implements HandlerInterceptor {
 
+    // 不需要权限校验的路径
+    private static final Set<String> WHITE_LIST = Collections.unmodifiableSet(
+            new HashSet<>(Arrays.asList(
+                    "/api/sys/user/login",
+                    "/api/sys/user/logout"
+            ))
+    );
+
     @Autowired
     private SysPermissionService permissionService;
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    // 不需要权限校验的路径
-    private static final Set<String> WHITE_LIST = Set.of(
-            "/api/sys/user/login",
-            "/api/sys/user/logout"
-    );
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {

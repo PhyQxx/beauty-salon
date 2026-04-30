@@ -16,6 +16,7 @@
 </template>
 
 <script setup>
+import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import Cookies from 'js-cookie'

@@ -42,7 +42,6 @@ public class CustomerServiceImpl implements CustomerService {
      */
     private static final Map<Integer, String> MEMBER_LEVEL_MAP = new HashMap<>();
     private static final Map<Integer, String> GENDER_MAP = new HashMap<>();
-    private static final Map<Integer, String> SOURCE_MAP = new HashMap<>();
     private static final Map<Integer, String> STATUS_MAP = new HashMap<>();
 
     static {
@@ -54,11 +53,6 @@ public class CustomerServiceImpl implements CustomerService {
         GENDER_MAP.put(0, "未知");
         GENDER_MAP.put(1, "男");
         GENDER_MAP.put(2, "女");
-
-        SOURCE_MAP.put(1, "自然到店");
-        SOURCE_MAP.put(2, "线上推广");
-        SOURCE_MAP.put(3, "老客推荐");
-        SOURCE_MAP.put(4, "其他");
 
         STATUS_MAP.put(0, "无效");
         STATUS_MAP.put(1, "有效");
@@ -223,11 +217,6 @@ public class CustomerServiceImpl implements CustomerService {
         // 会员等级筛选
         if (queryDTO.getMemberLevel() != null) {
             wrapper.eq(CrmCustomer::getMemberLevel, queryDTO.getMemberLevel());
-        }
-
-        // 客户来源筛选
-        if (queryDTO.getSource() != null) {
-            wrapper.eq(CrmCustomer::getSource, queryDTO.getSource());
         }
 
         // 日期范围筛选
@@ -479,7 +468,6 @@ public class CustomerServiceImpl implements CustomerService {
         // 转换文本字段
         vo.setGenderText(GENDER_MAP.getOrDefault(customer.getGender(), "未知"));
         vo.setMemberLevelText(MEMBER_LEVEL_MAP.getOrDefault(customer.getMemberLevel(), "普通会员"));
-        vo.setSourceText(SOURCE_MAP.getOrDefault(customer.getSource(), "其他"));
         vo.setStatusText(STATUS_MAP.getOrDefault(customer.getStatus(), "未知"));
 
         // 计算年龄

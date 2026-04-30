@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.beautysalon.mapper.PosOrderMapper">
+
+    <!-- 分页查询订单 -->
+    <select id="selectPage" resultType="com.beautysalon.entity.PosOrder">
+        SELECT * FROM pos_order
+        WHERE deleted = 0
+        <if test="customerId != null">
+            AND customer_id = #{customerId}
+        </if>
+        <if test="orderType != null">
+            AND order_type = #{orderType}
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="payStatus != null">
+            AND pay_status = #{payStatus}
+        </if>
+        <if test="startTime != null">
+            AND create_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND create_time &lt;= #{endTime}
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 根据客户ID查询 -->
+    <select id="selectByCustomerId" resultType="com.beautysalon.entity.PosOrder">
+        SELECT * FROM pos_order
+        WHERE deleted = 0 AND customer_id = #{customerId}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 按时间范围查询 -->
+    <select id="selectByDateRange" resultType="com.beautysalon.entity.PosOrder">
+        SELECT * FROM pos_order
+        WHERE deleted = 0
+          AND create_time &gt;= #{startTime}
+          AND create_time &lt;= #{endTime}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 批量插入订单明细 -->
+    <insert id="insertItems">
+        INSERT INTO pos_order_item (order_id, service_id, service_name, quantity, unit_price, subtotal, used, used_time, create_time, update_time, deleted)
+        VALUES
+        <foreach collection="items" item="item" separator=",">
+            (#{item.orderId}, #{item.serviceId}, #{item.serviceName}, #{item.quantity}, #{item.unitPrice}, #{item.subtotal}, #{item.used}, #{item.usedTime}, NOW(), NOW(), 0)
+        </foreach>
+    </insert>
+
+    <!-- 查询订单明细 -->
+    <select id="selectItemsByOrderId" resultType="com.beautysalon.entity.PosOrderItem">
+        SELECT * FROM pos_order_item
+        WHERE deleted = 0 AND order_id = #{orderId}
+    </select>
+
+    <!-- 删除订单明细 -->
+    <delete id="deleteItemsByOrderId">
+        UPDATE pos_order_item SET deleted = 1 WHERE order_id = #{orderId}
+    </delete>
+
+    <!-- 查询客户未使用的套餐明细 -->
+    <select id="selectUnusedPackageItems" resultType="com.beautysalon.entity.PosOrderItem">
+        SELECT i.* FROM pos_order_item i
+        INNER JOIN pos_order o ON i.order_id = o.id
+        WHERE i.deleted = 0 AND o.deleted = 0
+          AND o.customer_id = #{customerId}
+          AND i.used = 0
+        ORDER BY i.create_time DESC
+    </select>
+
+    <!-- 按支付方式统计金额 -->
+    <select id="sumAmountByPayType" resultType="map">
+        SELECT pay_type AS payType, SUM(pay_amount) AS totalAmount, COUNT(*) AS count
+        FROM pos_order
+        WHERE deleted = 0
+          AND create_time &gt;= #{startTime}
+          AND create_time &lt;= #{endTime}
+        GROUP BY pay_type
+    </select>
+
+    <!-- 按订单类型统计 -->
+    <select id="sumAmountByOrderType" resultType="map">
+        SELECT order_type AS orderType, SUM(pay_amount) AS totalAmount, COUNT(*) AS count
+        FROM pos_order
+        WHERE deleted = 0
+          AND create_time &gt;= #{startTime}
+          AND create_time &lt;= #{endTime}
+        GROUP BY order_type
+    </select>
+
+    <!-- 日报表 -->
+    <select id="selectDailyReport" resultType="map">
+        SELECT
+            COUNT(*) AS orderCount,
+            COALESCE(SUM(total_amount), 0) AS totalAmount,
+            COALESCE(SUM(discount_amount), 0) AS discountAmount,
+            COALESCE(SUM(pay_amount), 0) AS payAmount
+        FROM pos_order
+        WHERE deleted = 0
+          AND DATE(create_time) = #{date}
+    </select>
+
+    <!-- 周报表 -->
+    <select id="selectWeeklyReport" resultType="map">
+        SELECT
+            COUNT(*) AS orderCount,
+            COALESCE(SUM(total_amount), 0) AS totalAmount,
+            COALESCE(SUM(discount_amount), 0) AS discountAmount,
+            COALESCE(SUM(pay_amount), 0) AS payAmount
+        FROM pos_order
+        WHERE deleted = 0
+          AND create_time &gt;= #{startDate}
+          AND create_time &lt;= #{endDate}
+    </select>
+
+    <!-- 月报表 -->
+    <select id="selectMonthlyReport" resultType="map">
+        SELECT
+            COUNT(*) AS orderCount,
+            COALESCE(SUM(total_amount), 0) AS totalAmount,
+            COALESCE(SUM(discount_amount), 0) AS discountAmount,
+            COALESCE(SUM(pay_amount), 0) AS payAmount
+        FROM pos_order
+        WHERE deleted = 0
+          AND DATE_FORMAT(create_time, '%Y-%m') = #{yearMonth}
+    </select>
+
+</mapper>

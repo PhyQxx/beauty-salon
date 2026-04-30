@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.beautysalon.mapper.AppointmentMapper">
+
+    <!-- 分页查询预约列表 -->
+    <select id="selectList" resultType="com.beautysalon.entity.Appointment">
+        SELECT * FROM appointment
+        WHERE deleted = 0
+        <if test="appointmentNo != null and appointmentNo != ''">
+            AND appointment_no = #{appointmentNo}
+        </if>
+        <if test="customerId != null">
+            AND customer_id = #{customerId}
+        </if>
+        <if test="beauticianId != null">
+            AND beautician_id = #{beauticianId}
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND appointment_date &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND appointment_date &lt;= #{endDate}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (customer_name LIKE CONCAT('%', #{keyword}, '%')
+                 OR customer_phone LIKE CONCAT('%', #{keyword}, '%')
+                 OR beautician_name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- 统计预约数量 -->
+    <select id="countList" resultType="int">
+        SELECT COUNT(*) FROM appointment
+        WHERE deleted = 0
+        <if test="appointmentNo != null and appointmentNo != ''">
+            AND appointment_no = #{appointmentNo}
+        </if>
+        <if test="customerId != null">
+            AND customer_id = #{customerId}
+        </if>
+        <if test="beauticianId != null">
+            AND beautician_id = #{beauticianId}
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND appointment_date &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND appointment_date &lt;= #{endDate}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (customer_name LIKE CONCAT('%', #{keyword}, '%')
+                 OR customer_phone LIKE CONCAT('%', #{keyword}, '%')
+                 OR beautician_name LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </select>
+
+    <!-- 查询某美容师在某日期的预约 -->
+    <select id="selectByBeauticianAndDate" resultType="com.beautysalon.entity.Appointment">
+        SELECT * FROM appointment
+        WHERE deleted = 0
+          AND beautician_id = #{beauticianId}
+          AND appointment_date = #{date}
+        ORDER BY start_time ASC
+    </select>
+
+    <!-- 查询某日期的所有预约 -->
+    <select id="selectByDate" resultType="com.beautysalon.entity.Appointment">
+        SELECT * FROM appointment
+        WHERE deleted = 0
+          AND appointment_date = #{date}
+        ORDER BY start_time ASC
+    </select>
+
+    <!-- 查询日期范围内的所有预约 -->
+    <select id="selectByDateRange" resultType="com.beautysalon.entity.Appointment">
+        SELECT * FROM appointment
+        WHERE deleted = 0
+          AND appointment_date &gt;= #{startDate}
+          AND appointment_date &lt;= #{endDate}
+        ORDER BY appointment_date ASC, start_time ASC
+    </select>
+
+    <!-- 检查时间段冲突 -->
+    <select id="checkTimeConflict" resultType="int">
+        SELECT COUNT(*) FROM appointment
+        WHERE deleted = 0
+          AND beautician_id = #{beauticianId}
+          AND appointment_date = #{date}
+          AND status NOT IN (5, 6)
+          <if test="excludeId != null">
+              AND id != #{excludeId}
+          </if>
+          AND (
+              (start_time &lt; #{endTime} AND end_time &gt; #{startTime})
+          )
+    </select>
+
+    <!-- 查询今日预约统计 -->
+    <select id="selectTodayStatistics" resultType="com.beautysalon.entity.Appointment">
+        SELECT * FROM appointment
+        WHERE deleted = 0
+          AND appointment_date = #{today}
+        ORDER BY start_time ASC
+    </select>
+
+    <!-- 查询美容师排班信息 -->
+    <select id="selectScheduleByDate" resultType="com.beautysalon.entity.Appointment">
+        SELECT * FROM appointment
+        WHERE deleted = 0
+          AND appointment_date = #{date}
+        ORDER BY beautician_id ASC, start_time ASC
+    </select>
+
+</mapper>

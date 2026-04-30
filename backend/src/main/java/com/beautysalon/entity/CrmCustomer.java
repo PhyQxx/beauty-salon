@@ -50,6 +50,7 @@ public class CrmCustomer {
     /**
      * 客户积分
      */
+    @TableField("member_points")
     private Integer points;
 
     /**
@@ -61,11 +62,6 @@ public class CrmCustomer {
      * 客户状态：0-无效，1-有效
      */
     private Integer status;
-
-    /**
-     * 客户来源：1-自然到店，2-线上推广，3-老客推荐，4-其他
-     */
-    private Integer source;
 
     /**
      * 客户头像URL

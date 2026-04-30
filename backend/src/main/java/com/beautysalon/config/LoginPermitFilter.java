@@ -11,6 +11,8 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -20,9 +22,11 @@ import java.util.Set;
 @Configuration
 public class LoginPermitFilter {
 
-    private static final Set<String> WHITE_LIST = Set.of(
-            "/api/sys/user/login",
-            "/api/sys/user/logout"
+    private static final Set<String> WHITE_LIST = Collections.unmodifiableSet(
+            new java.util.HashSet<>(Arrays.asList(
+                    "/api/sys/user/login",
+                    "/api/sys/user/logout"
+            ))
     );
 
     @Autowired

@@ -7,7 +7,7 @@ import request from '@/utils/request'
  */
 export function getCampaignList(params) {
   return request({
-    url: '/marketing/campaign/list',
+    url: '/pos/campaign/list',
     method: 'get',
     params
   })
@@ -18,7 +18,7 @@ export function getCampaignList(params) {
  */
 export function getCampaignById(id) {
   return request({
-    url: `/marketing/campaign/${id}`,
+    url: `/pos/campaign/${id}`,
     method: 'get'
   })
 }
@@ -28,7 +28,7 @@ export function getCampaignById(id) {
  */
 export function addCampaign(data) {
   return request({
-    url: '/marketing/campaign',
+    url: '/pos/campaign',
     method: 'post',
     data
   })
@@ -39,7 +39,7 @@ export function addCampaign(data) {
  */
 export function updateCampaign(id, data) {
   return request({
-    url: `/marketing/campaign/${id}`,
+    url: `/pos/campaign/${id}`,
     method: 'put',
     data
   })
@@ -50,7 +50,7 @@ export function updateCampaign(id, data) {
  */
 export function deleteCampaign(id) {
   return request({
-    url: `/marketing/campaign/${id}`,
+    url: `/pos/campaign/${id}`,
     method: 'delete'
   })
 }
