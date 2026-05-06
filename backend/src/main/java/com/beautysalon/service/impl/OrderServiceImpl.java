@@ -676,9 +676,9 @@ public class OrderServiceImpl implements OrderService {
         result.put("totalRefundAmount", totalRefundAmount != null ? totalRefundAmount : BigDecimal.ZERO);
         result.put("netAmount", (totalPayAmount != null ? totalPayAmount : BigDecimal.ZERO)
                 .subtract(totalRefundAmount != null ? totalRefundAmount : BigDecimal.ZERO));
-        result.put("rechargeTotalAmount", rechargeStats.get("totalAmount"));
-        result.put("rechargeGiftAmount", rechargeStats.get("totalGiftAmount"));
-        result.put("rechargeCount", rechargeStats.get("rechargeCount"));
+        result.put("rechargeTotalAmount", rechargeStats.get("totalAmount") != null ? rechargeStats.get("totalAmount") : BigDecimal.ZERO);
+        result.put("rechargeGiftAmount", rechargeStats.get("totalGiftAmount") != null ? rechargeStats.get("totalGiftAmount") : BigDecimal.ZERO);
+        result.put("rechargeCount", rechargeStats.get("rechargeCount") != null ? rechargeStats.get("rechargeCount") : 0);
         
         return result;
     }

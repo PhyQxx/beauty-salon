@@ -60,7 +60,7 @@ export function deleteCampaign(id) {
  */
 export function getCouponList(params) {
   return request({
-    url: '/marketing/coupon/list',
+    url: '/coupon/list',
     method: 'get',
     params
   })
@@ -71,7 +71,7 @@ export function getCouponList(params) {
  */
 export function getCouponById(id) {
   return request({
-    url: `/marketing/coupon/${id}`,
+    url: `/coupon/${id}`,
     method: 'get'
   })
 }
@@ -81,7 +81,7 @@ export function getCouponById(id) {
  */
 export function addCoupon(data) {
   return request({
-    url: '/marketing/coupon',
+    url: '/coupon',
     method: 'post',
     data
   })
@@ -92,7 +92,7 @@ export function addCoupon(data) {
  */
 export function updateCoupon(id, data) {
   return request({
-    url: `/marketing/coupon/${id}`,
+    url: `/coupon/${id}`,
     method: 'put',
     data
   })
@@ -103,7 +103,7 @@ export function updateCoupon(id, data) {
  */
 export function deleteCoupon(id) {
   return request({
-    url: `/marketing/coupon/${id}`,
+    url: `/coupon/${id}`,
     method: 'delete'
   })
 }
@@ -113,7 +113,7 @@ export function deleteCoupon(id) {
  */
 export function distributeCoupon(couponId, customerIds) {
   return request({
-    url: `/marketing/coupon/${couponId}/distribute`,
+    url: `/coupon/${couponId}/distribute`,
     method: 'post',
     data: { customerIds }
   })
@@ -124,7 +124,7 @@ export function distributeCoupon(couponId, customerIds) {
  */
 export function batchDistributeCoupon(data) {
   return request({
-    url: '/marketing/coupon/batch-distribute',
+    url: '/coupon/batch-distribute',
     method: 'post',
     data
   })

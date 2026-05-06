@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,7 +52,8 @@ public class DashboardController {
             stats.put("pendingAppointments", appointmentStats.get("pending") != null ? appointmentStats.get("pending") : 0);
 
             // 今日订单数
-            Map<String, Object> orderStats = orderService.getStatistics(null, null);
+            String today = LocalDate.now().toString();
+            Map<String, Object> orderStats = orderService.getStatistics(today, today);
             stats.put("todayOrders", orderStats.get("orderCount") != null ? orderStats.get("orderCount") : 0);
             stats.put("todayRevenue", orderStats.get("totalAmount") != null ? orderStats.get("totalAmount") : 0);
 

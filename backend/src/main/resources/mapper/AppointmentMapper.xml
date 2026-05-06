@@ -68,7 +68,7 @@
         WHERE deleted = 0
           AND beautician_id = #{beauticianId}
           AND appointment_date = #{date}
-        ORDER BY start_time ASC
+        ORDER BY appointment_time ASC
     </select>
 
     <!-- 查询某日期的所有预约 -->
@@ -76,7 +76,7 @@
         SELECT * FROM appointment
         WHERE deleted = 0
           AND appointment_date = #{date}
-        ORDER BY start_time ASC
+        ORDER BY appointment_time ASC
     </select>
 
     <!-- 查询日期范围内的所有预约 -->
@@ -85,7 +85,7 @@
         WHERE deleted = 0
           AND appointment_date &gt;= #{startDate}
           AND appointment_date &lt;= #{endDate}
-        ORDER BY appointment_date ASC, start_time ASC
+        ORDER BY appointment_date ASC, appointment_time ASC
     </select>
 
     <!-- 检查时间段冲突 -->
@@ -99,7 +99,7 @@
               AND id != #{excludeId}
           </if>
           AND (
-              (start_time &lt; #{endTime} AND end_time &gt; #{startTime})
+              (appointment_time &lt; #{endTime} AND end_time &gt; #{startTime})
           )
     </select>
 
@@ -108,7 +108,7 @@
         SELECT * FROM appointment
         WHERE deleted = 0
           AND appointment_date = #{today}
-        ORDER BY start_time ASC
+        ORDER BY appointment_time ASC
     </select>
 
     <!-- 查询美容师排班信息 -->
@@ -116,7 +116,7 @@
         SELECT * FROM appointment
         WHERE deleted = 0
           AND appointment_date = #{date}
-        ORDER BY beautician_id ASC, start_time ASC
+        ORDER BY beautician_id ASC, appointment_time ASC
     </select>
 
 </mapper>

@@ -41,4 +41,28 @@
         ORDER BY create_time DESC
     </select>
 
+    <!-- 按时间范围统计充值金额 -->
+    <select id="sumAmountByDateRange" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(recharge_amount), 0) FROM pos_recharge
+        WHERE deleted = 0
+          AND create_time &gt;= #{startTime}
+          AND create_time &lt;= #{endTime}
+    </select>
+
+    <!-- 按时间范围统计赠送金额 -->
+    <select id="sumGiftAmountByDateRange" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(gift_amount), 0) FROM pos_recharge
+        WHERE deleted = 0
+          AND create_time &gt;= #{startTime}
+          AND create_time &lt;= #{endTime}
+    </select>
+
+    <!-- 按时间范围统计充值次数 -->
+    <select id="countByDateRange" resultType="int">
+        SELECT COUNT(*) FROM pos_recharge
+        WHERE deleted = 0
+          AND create_time &gt;= #{startTime}
+          AND create_time &lt;= #{endTime}
+    </select>
+
 </mapper>

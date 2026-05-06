@@ -44,6 +44,30 @@
         ORDER BY create_time DESC
     </select>
 
+    <!-- 统计时间范围内的订单数 -->
+    <select id="countByDateRange" resultType="int">
+        SELECT COUNT(*) FROM pos_order
+        WHERE deleted = 0
+          AND create_time &gt;= #{startTime}
+          AND create_time &lt;= #{endTime}
+    </select>
+
+    <!-- 统计时间范围内的实收金额 -->
+    <select id="sumPayAmountByDateRange" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(pay_amount), 0) FROM pos_order
+        WHERE deleted = 0
+          AND create_time &gt;= #{startTime}
+          AND create_time &lt;= #{endTime}
+    </select>
+
+    <!-- 统计时间范围内的退款金额 -->
+    <select id="sumRefundAmountByDateRange" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(refund_amount), 0) FROM pos_order
+        WHERE deleted = 0
+          AND create_time &gt;= #{startTime}
+          AND create_time &lt;= #{endTime}
+    </select>
+
     <!-- 批量插入订单明细 -->
     <insert id="insertItems">
         INSERT INTO pos_order_item (order_id, service_id, service_name, quantity, unit_price, subtotal, used, used_time, create_time, update_time, deleted)
