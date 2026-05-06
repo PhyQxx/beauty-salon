@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>美容店小程序 - 交互原型</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --primary: #FF6B9D;
+      --primary-light: #FFF5F8;
+      --secondary: #FFD93D;
+      --text-dark: #333333;
+      --text-gray: #999999;
+      --success: #52C41A;
+      --warning: #FF9500;
+      --error: #FF4D4F;
+      --bg: #F5F5F5;
+      --white: #FFFFFF;
+      --border: #EEEEEE;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: var(--white);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 50px 100px rgba(0,0,0,0.5);
+    }
+    
+    .screen {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .page {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      display: none;
+      flex-direction: column;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .page.active {
+      display: flex;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    /* Header */
+    .header {
+      background: var(--white);
+      padding: 47px 16px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .header-back {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 20px;
+    }
+    
+    .header-back:hover {
+      background: var(--primary-light);
+      border-radius: 50%;
+    }
+    
+    .header-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-dark);
+      flex: 1;
+      text-align: center;
+    }
+    
+    .header-right {
+      width: 44px;
+    }
+    
+    /* Content */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 70px;
+    }
+    
+    /* Banner */
+    .banner {
+      height: 160px;
+      background: linear-gradient(135deg, var(--primary) 0%, #ff8fab 100%);
+      margin: 12px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    
+    /* Quick Actions */
+    .quick-actions {
+      display: flex;
+      justify-content: space-around;
+      padding: 16px;
+      background: var(--white);
+      margin: 0 12px;
+      border-radius: 12px;
+    }
+    
+    .quick-action {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .quick-action:active {
+      transform: scale(0.95);
+    }
+    
+    .quick-action-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--primary-light);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    
+    .quick-action span {
+      font-size: 12px;
+      color: var(--text-dark);
+    }
+    
+    /* Section */
+    .section {
+      padding: 16px;
+    }
+    
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 16px;
+      background: var(--primary);
+      border-radius: 2px;
+      margin-right: 8px;
+    }
+    
+    /* Service Grid */
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    
+    .service-card {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .service-card:active {
+      transform: scale(0.98);
+    }
+    
+    .service-card.selected {
+      border: 2px solid var(--primary);
+    }
+    
+    .service-img {
+      height: 100px;
+      background: linear-gradient(135deg, #ffe0e9 0%, #fff5f5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+    }
+    
+    .service-info {
+      padding: 10px;
+    }
+    
+    .service-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+    
+    .service-meta {
+      font-size: 12px;
+      color: var(--text-gray);
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .service-price {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    /* Tab Bar */
+    .tab-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: var(--white);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-top: 1px solid var(--border);
+    }
+    
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      padding: 5px 15px;
+      transition: transform 0.2s;
+    }
+    
+    .tab-item.active {
+      color: var(--primary);
+    }
+    
+    .tab-item:active {
+      transform: scale(0.9);
+    }
+    
+    .tab-icon {
+      font-size: 22px;
+      margin-bottom: 2px;
+    }
+    
+    .tab-text {
+      font-size: 10px;
+    }
+    
+    /* Bottom Action */
+    .bottom-action {
+      position: absolute;
+      bottom: 70px;
+      left: 0;
+      right: 0;
+      padding: 12px 16px;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+    }
+    
+    .bottom-action-btn {
+      width: 100%;
+      height: 44px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 22px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    
+    .bottom-action-btn:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+    
+    .bottom-action-btn:active:not(:disabled) {
+      opacity: 0.8;
+    }
+    
+    /* Status Bar (mock) */
+    .status-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 44px;
+      background: var(--white);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+    }
+    
+    .modal {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 24px;
+      width: 300px;
+      text-align: center;
+      animation: modalIn 0.3s ease;
+    }
+    
+    @keyframes modalIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    
+    .modal-icon {
+      font-size: 60px;
+      margin-bottom: 16px;
+    }
+    
+    .modal-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 16px;
+    }
+    
+    .modal-info {
+      font-size: 14px;
+      color: var(--text-gray);
+      margin-bottom: 8px;
+    }
+    
+    .modal-btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    
+    .modal-btn {
+      flex: 1;
+      height: 40px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+    }
+    
+    .modal-btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .modal-btn-secondary {
+      background: var(--bg);
+      color: var(--text-dark);
+    }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      background: var(--white);
+      padding: 0 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .tab {
+      padding: 12px 16px;
+      font-size: 14px;
+      color: var(--text-gray);
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .tab.active {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 16px;
+      right: 16px;
+      height: 2px;
+      background: var(--primary);
+    }
+    
+    /* List Item */
+    .list-item {
+      background: var(--white);
+      padding: 16px;
+      margin-bottom: 1px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .list-item:active {
+      background: var(--primary-light);
+    }
+    
+    /* Member Card */
+    .member-card {
+      background: linear-gradient(135deg, var(--primary) 0%, #ff8fab 100%);
+      margin: 12px;
+      padding: 20px;
+      border-radius: 16px;
+      color: white;
+    }
+    
+    .member-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .member-avatar {
+      width: 50px;
+      height: 50px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-right: 12px;
+    }
+    
+    .member-name {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .member-level {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    
+    .member-stats {
+      display: flex;
+      justify-content: space-around;
+    }
+    
+    .member-stat {
+      text-align: center;
+    }
+    
+    .member-stat-value {
+      font-size: 20px;
+      font-weight: 600;
+    }
+    
+    .member-stat-label {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+    
+    /* Appointment Card */
+    .appointment-card {
+      background: var(--white);
+      margin: 12px;
+      padding: 16px;
+      border-radius: 12px;
+    }
+    
+    .appointment-status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    
+    .status-pending {
+      background: #FFF3E0;
+      color: var(--warning);
+    }
+    
+    .status-confirmed {
+      background: #E3F2FD;
+      color: #2196F3;
+    }
+    
+    .status-completed {
+      background: #E8F5E9;
+      color: var(--success);
+    }
+    
+    .appointment-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+    
+    .appointment-meta {
+      font-size: 14px;
+      color: var(--text-gray);
+      margin-bottom: 8px;
+    }
+    
+    .appointment-services {
+      font-size: 13px;
+      color: var(--text-gray);
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    
+    /* QR Code */
+    .qr-code {
+      background: var(--white);
+      margin: 12px;
+      padding: 24px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    
+    .qr-placeholder {
+      width: 160px;
+      height: 160px;
+      background: var(--primary-light);
+      margin: 0 auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 80px;
+    }
+    
+    .qr-timer {
+      font-size: 12px;
+      color: var(--text-gray);
+    }
+    
+    /* Radio List */
+    .radio-list {
+      background: var(--white);
+    }
+    
+    .radio-item {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    
+    .radio-item:active {
+      background: var(--primary-light);
+    }
+    
+    .radio-item:last-child {
+      border-bottom: none;
+    }
+    
+    .radio-icon {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .radio-item.selected .radio-icon {
+      border-color: var(--primary);
+      background: var(--primary);
+    }
+    
+    .radio-item.selected .radio-icon::after {
+      content: '✓';
+      color: white;
+      font-size: 14px;
+    }
+    
+    .radio-content {
+      flex: 1;
+    }
+    
+    .radio-title {
+      font-size: 15px;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+    
+    .radio-subtitle {
+      font-size: 12px;
+      color: var(--text-gray);
+    }
+    
+    /* Date Picker */
+    .date-picker {
+      background: var(--white);
+      padding: 16px;
+    }
+    
+    .date-header {
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    
+    .date-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      text-align: center;
+    }
+    
+    .date-weekday {
+      font-size: 12px;
+      color: var(--text-gray);
+      margin-bottom: 8px;
+    }
+    
+    .date-day {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    .date-day.disabled {
+      color: #cccccc;
+    }
+    
+    .date-day.selected {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .date-day.today {
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    /* Time Slots */
+    .time-slots {
+      padding: 16px;
+    }
+    
+    .time-slot-group {
+      margin-bottom: 16px;
+    }
+    
+    .time-slot-title {
+      font-size: 12px;
+      color: var(--text-gray);
+      margin-bottom: 8px;
+    }
+    
+    .time-slot-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    
+    .time-slot {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--white);
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+    }
+    
+    .time-slot:active {
+      background: var(--primary-light);
+    }
+    
+    .time-slot.selected {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    
+    .time-slot.disabled {
+      background: #f5f5f5;
+      color: #cccccc;
+      cursor: not-allowed;
+    }
+    
+    /* Beautician Card */
+    .beautician-card {
+      background: var(--white);
+      margin: 12px;
+      padding: 16px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .beautician-card:active {
+      transform: scale(0.98);
+    }
+    
+    .beautician-card.selected {
+      border: 2px solid var(--primary);
+    }
+    
+    .beautician-avatar {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #ffe0e9 0%, #fff5f5 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-right: 12px;
+    }
+    
+    .beautician-info {
+      flex: 1;
+    }
+    
+    .beautician-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 4px;
+    }
+    
+    .beautician-title {
+      font-size: 12px;
+      color: var(--text-gray);
+      margin-bottom: 4px;
+    }
+    
+    .beautician-rating {
+      font-size: 12px;
+      color: var(--warning);
+    }
+    
+    .beautician-status {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    
+    .status-free {
+      background: #E8F5E9;
+      color: var(--success);
+    }
+    
+    .status-busy {
+      background: #FFEBEE;
+      color: var(--error);
+    }
+    
+    /* Info Card */
+    .info-card {
+      background: var(--white);
+      margin: 12px;
+      padding: 16px;
+      border-radius: 12px;
+    }
+    
+    .info-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    
+    .info-label {
+      color: var(--text-gray);
+    }
+    
+    .info-value {
+      color: var(--text-dark);
+      font-weight: 500;
+    }
+    
+    /* Coupon Card */
+    .coupon-card {
+      background: linear-gradient(135deg, var(--primary) 0%, #ff8fab 100%);
+      margin: 12px;
+      padding: 16px;
+      border-radius: 12px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .coupon-card.used {
+      background: #cccccc;
+    }
+    
+    .coupon-card.expired {
+      background: #999999;
+    }
+    
+    .coupon-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .coupon-desc {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-bottom: 8px;
+    }
+    
+    .coupon-validity {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+    
+    .coupon-status-tag {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 2px 8px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    
+    /* Summary */
+    .summary-card {
+      background: var(--white);
+      margin: 12px;
+      padding: 16px;
+      border-radius: 12px;
+    }
+    
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+    
+    .summary-row.total {
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+      padding-top: 12px;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    
+    /* 步骤指示器 */
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      padding: 12px;
+      background: var(--white);
+    }
+    
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--border);
+      border-radius: 50%;
+      margin: 0 4px;
+    }
+    
+    .step-dot.active {
+      background: var(--primary);
+      width: 20px;
+      border-radius: 4px;
+    }
+    
+    .step-dot.completed {
+      background: var(--success);
+    }
+    
+    /* 进度条 */
+    .progress-bar {
+      height: 4px;
+      background: var(--border);
+      position: relative;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.3s;
+    }
+    
+    /* 浮动提示 */
+    .toast {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.75);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 200;
+      animation: toastIn 0.3s ease;
+    }
+    
+    @keyframes toastIn {
+      from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="screen">
+      <!-- Status Bar Mock -->
+      <div class="status-bar">
+        <span>9:41</span>
+        <span>📶 📡 🔋</span>
+      </div>
+      
+      <!-- ==================== 首页 ==================== -->
+      <div class="page active" id="page-home">
+        <div class="header" style="padding-top: 12px;">
+          <div class="header-title">美容店小程序</div>
+        </div>
+        
+        <div class="content">
+          <!-- Banner -->
+          <div class="banner" onclick="showToast('查看活动详情')">
+            🎉 母亲节特惠 全场8折起
+          </div>
+          
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            <div class="quick-action" onclick="goTo('page-booking')">
+              <div class="quick-action-icon">⚡</div>
+              <span>在线预约</span>
+            </div>
+            <div class="quick-action" onclick="goTo('page-member')">
+              <div class="quick-action-icon">📱</div>
+              <span>会员码</span>
+            </div>
+            <div class="quick-action" onclick="goTo('page-coupons')">
+              <div class="quick-action-icon">🎫</div>
+              <span>优惠券</span>
+            </div>
+          </div>
+          
+          <!-- Hot Services -->
+          <div class="section">
+            <div class="section-title">热门服务</div>
+            <div class="service-grid">
+              <div class="service-card" onclick="goTo('page-booking')">
+                <div class="service-img">💆</div>
+                <div class="service-info">
+                  <div class="service-name">面部深层清洁</div>
+                  <div class="service-meta">
+                    <span>60分钟</span>
+                    <span class="service-price">¥198</span>
+                  </div>
+                </div>
+              </div>
+              <div class="service-card" onclick="goTo('page-booking')">
+                <div class="service-img">💆‍♀️</div>
+                <div class="service-info">
+                  <div class="service-name">肩颈按摩</div>
+                  <div class="service-meta">
+                    <span>45分钟</span>
+                    <span class="service-price">¥168</span>
+                  </div>
+                </div>
+              </div>
+              <div class="service-card" onclick="goTo('page-booking')">
+                <div class="service-img">👁️</div>
+                <div class="service-info">
+                  <div class="service-name">眼部 SPA</div>
+                  <div class="service-meta">
+                    <span>30分钟</span>
+                    <span class="service-price">¥128</span>
+                  </div>
+                </div>
+              </div>
+              <div class="service-card" onclick="goTo('page-booking')">
+                <div class="service-img">💅</div>
+                <div class="service-info">
+                  <div class="service-name">美甲护理</div>
+                  <div class="service-meta">
+                    <span>40分钟</span>
+                    <span class="service-price">¥88</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+          <div class="tab-item active" onclick="goTo('page-home')">
+            <div class="tab-icon">🏠</div>
+            <div class="tab-text">首页</div>
+          </div>
+          <div class="tab-item" onclick="goTo('page-booking')">
+            <div class="tab-icon">📅</div>
+            <div class="tab-text">预约</div>
+          </div>
+          <div class="tab-item" onclick="goTo('page-appointments')">
+            <div class="tab-icon">📋</div>
+            <div class="tab-text">我的预约</div>
+          </div>
+          <div class="tab-item" onclick="goTo('page-member')">
+            <div class="tab-icon">👤</div>
+            <div class="tab-text">我的</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ==================== 预约流程 Step 1: 选择服务 ==================== -->
+      <div class="page" id="page-booking">
+        <div class="header">
+          <div class="header-back" onclick="goTo('page-home')">←</div>
+          <div class="header-title">选择服务</div>
+          <div class="header-right" style="font-size: 14px; color: var(--primary);">已选 2 项</div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs" style="background: white;">
+          <div class="tab active">全部</div>
+          <div class="tab">面部护理</div>
+          <div class="tab">身体按摩</div>
+          <div class="tab">美甲</div>
+        </div>
+        
+        <div class="content">
+          <div class="service-grid" style="padding: 12px;">
+            <div class="service-card selected" onclick="toggleSelect(this)">
+              <div class="service-img">💆</div>
+              <div class="service-info">
+                <div class="service-name">面部深层清洁</div>
+                <div class="service-meta">
+                  <span>60分钟</span>
+                  <span class="service-price">¥198</span>
+                </div>
+              </div>
+            </div>
+            <div class="service-card selected" onclick="toggleSelect(this)">
+              <div class="service-img">💆‍♀️</div>
+              <div class="service-info">
+                <div class="service-name">肩颈按摩</div>
+                <div class="service-meta">
+                  <span>45分钟</span>
+                  <span class="service-price">¥168</span>
+                </div>
+              </div>
+            </div>
+            <div class="service-card" onclick="toggleSelect(this)">
+              <div class="service-img">👁️</div>
+              <div class="service-info">
+                <div class="service-name">眼部 SPA</div>
+                <div class="service-meta">
+                  <span>30分钟</span>
+                  <span class="service-price">¥128</span>
+                </div>
+              </div>
+            </div>
+            <div class="service-card" onclick="toggleSelect(this)">
+              <div class="service-img">💅</div>
+              <div class="service-info">
+                <div class="service-name">美甲护理</div>
+                <div class="service-meta">
+                  <span>40分钟</span>
+                  <span class="service-price">¥88</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bottom-action">
+          <div style="font-size: 12px; color: var(--text-gray); margin-bottom: 8px; text-align: center;">
+            已选: 面部深层清洁 + 肩颈按摩 | 共 1小时45分钟
+          </div>
+          <button class="bottom-action-btn" onclick="goTo('page-beautician')">下一步：选择美容师</button>
+        </div>
+      </div>
+      
+      <!-- ==================== 预约流程 Step 2: 选择美容师 ==================== -->
+      <div class="page" id="page-beautician">
+        <div class="header">
+          <div class="header-back" onclick="goTo('page-booking')">←</div>
+          <div class="header-title">选择美容师</div>
+          <div class="header-right"></div>
+        </div>
+        
+        <div class="content">
+          <div class="radio-list">
+            <div class="radio-item" onclick="selectRadio(this, 'beautician')">
+              <div class="radio-icon"></div>
+              <div class="radio-content">
+                <div class="radio-title">不指定美容师</div>
+                <div class="radio-subtitle">系统将为您安排空闲技师</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="beautician-card selected" onclick="selectRadio(this, 'beautician')">
+            <div class="beautician-avatar">👩‍🔧</div>
+            <div class="beautician-info">
+              <div class="beautician-name">陈美容师</div>
+              <div class="beautician-title">高级美容师 | 擅长: 面部</div>
+              <div class="beautician-rating">⭐⭐⭐⭐⭐ 5.0</div>
+            </div>
+            <div class="beautician-status status-free">空闲</div>
+          </div>
+          
+          <div class="beautician-card" onclick="selectRadio(this, 'beautician')">
+            <div class="beautician-avatar">👨‍🔧</div>
+            <div class="beautician-info">
+              <div class="beautician-name">李技师</div>
+              <div class="beautician-title">美容师 | 擅长: 身体</div>
+              <div class="beautician-rating">⭐⭐⭐⭐ 4.8</div>
+            </div>
+            <div class="beautician-status status-busy">忙碌</div>
+          </div>
+          
+          <div class="beautician-card" onclick="selectRadio(this, 'beautician')">
+            <div class="beautician-avatar">👩‍🔧</div>
+            <div class="beautician-info">
+              <div class="beautician-name">王技师</div>
+              <div class="beautician-title">美容师 | 擅长: 美甲</div>
+              <div class="beautician-rating">⭐⭐⭐⭐ 4.5</div>
+            </div>
+            <div class="beautician-status status-free">空闲</div>
+          </div>
+        </div>
+        
+        <div class="bottom-action">
+          <button class="bottom-action-btn" onclick="goTo('page-time')">下一步：选择时间</button>
+        </div>
+      </div>
+      
+      <!-- ==================== 预约流程 Step 3: 选择时间 ==================== -->
+      <div class="page" id="page-time">
+        <div class="header">
+          <div class="header-back" onclick="goTo('page-beautician')">←</div>
+          <div class="header-title">选择时间</div>
+          <div class="header-right"></div>
+        </div>
+        
+        <div class="content">
+          <div class="date-picker">
+            <div class="date-header">
+              <span onclick="showToast('上一月')">◀</span>
+              2026年5月
+              <span onclick="showToast('下一月')">▶</span>
+            </div>
+            <div class="date-grid">
+              <div class="date-weekday">日</div>
+              <div class="date-weekday">一</div>
+              <div class="date-weekday">二</div>
+              <div class="date-weekday">三</div>
+              <div class="date-weekday">四</div>
+              <div class="date-weekday">五</div>
+              <div class="date-weekday">六</div>
+              
+              <div class="date-day disabled"></div>
+              <div class="date-day disabled"></div>
+              <div class="date-day disabled"></div>
+              <div class="date-day disabled"></div>
+              <div class="date-day disabled"></div>
+              <div class="date-day disabled">1</div>
+              <div class="date-day disabled">2</div>
+              
+              <div class="date-day disabled">3</div>
+              <div class="date-day disabled">4</div>
+              <div class="date-day today">5</div>
+              <div class="date-day selected" onclick="selectDate(this)">6</div>
+              <div class="date-day" onclick="selectDate(this)">7</div>
+              <div class="date-day" onclick="selectDate(this)">8</div>
+              <div class="date-day" onclick="selectDate(this)">9</div>
+              
+              <div class="date-day" onclick="selectDate(this)">10</div>
+              <div class="date-day" onclick="selectDate(this)">11</div>
+              <div class="date-day" onclick="selectDate(this)">12</div>
+              <div class="date-day" onclick="selectDate(this)">13</div>
+              <div class="date-day" onclick="selectDate(this)">14</div>
+              <div class="date-day" onclick="selectDate(this)">15</div>
+              <div class="date-day" onclick="selectDate(this)">16</div>
+            </div>
+          </div>
+          
+          <div class="time-slots">
+            <div class="time-slot-group">
+              <div class="time-slot-title">上午</div>
+              <div class="time-slot-grid">
+                <div class="time-slot" onclick="selectTime(this)">10:00</div>
+                <div class="time-slot" onclick="selectTime(this)">10:30</div>
+                <div class="time-slot" onclick="selectTime(this)">11:00</div>
+                <div class="time-slot" onclick="selectTime(this)">11:30</div>
+              </div>
+            </div>
+            
+            <div class="time-slot-group">
+              <div class="time-slot-title">下午</div>
+              <div class="time-slot-grid">
+                <div class="time-slot selected" onclick="selectTime(this)">14:00</div>
+                <div class="time-slot" onclick="selectTime(this)">14:30</div>
+                <div class="time-slot" onclick="selectTime(this)">15:00</div>
+                <div class="time-slot disabled">15:30</div>
+              </div>
+            </div>
+            
+            <div class="time-slot-group">
+              <div class="time-slot-title">晚上</div>
+              <div class="time-slot-grid">
+                <div class="time-slot" onclick="selectTime(this)">18:00</div>
+                <div class="time-slot" onclick="selectTime(this)">18:30</div>
+                <div class="time-slot disabled">19:00</div>
+                <div class="time-slot disabled">19:30</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bottom-action">
+          <button class="bottom-action-btn" onclick="goTo('page-confirm')">下一步：确认预约</button>
+        </div>
+      </div>
+      
+      <!-- ==================== 预约流程 Step 4: 确认预约 ==================== -->
+      <div class="page" id="page-confirm">
+        <div class="header">
+          <div class="header-back" onclick="goTo('page-time')">←</div>
+          <div class="header-title">确认预约</div>
+          <div class="header-right"></div>
+        </div>
+        
+        <div class="content">
+          <div class="info-card">
+            <div class="info-card-title">📋 预约信息</div>
+            <div class="info-row">
+              <span class="info-label">门店</span>
+              <span class="info-value">美容店(总店)</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">美容师</span>
+              <span class="info-value">陈美容师 ⭐5.0</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">时间</span>
+              <span class="info-value">5月6日 14:00</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">预计时长</span>
+              <span class="info-value">1小时45分钟</span>
+            </div>
+          </div>
+          
+          <div class="info-card">
+            <div class="info-card-title">💆 已选服务</div>
+            <div class="info-row">
+              <span class="info-label">面部深层清洁</span>
+              <span class="info-value">¥198</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">肩颈按摩</span>
+              <span class="info-value">¥168</span>
+            </div>
+            <div class="info-row total">
+              <span>合计</span>
+              <span style="color: var(--primary);">¥366</span>
+            </div>
+          </div>
+          
+          <div class="summary-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; cursor: pointer;">
+              <span style="font-size: 14px;">🎫 优惠券</span>
+              <span style="font-size: 14px; color: var(--text-gray);">暂无可用 ▼</span>
+            </div>
+          </div>
+          
+          <div class="summary-card">
+            <div style="padding: 12px 0;">
+              <span style="font-size: 12px; color: var(--text-gray);">备注（可选）</span>
+              <input type="text" placeholder="想说什么？" style="width: 100%; border: none; outline: none; font-size: 14px; margin-top: 8px;" />
+            </div>
+          </div>
+        </div>
+        
+        <div class="bottom-action">
+          <button class="bottom-action-btn" onclick="showSuccessModal()">确认预约</button>
+        </div>
+      </div>
+      
+      <!-- ==================== 预约成功弹窗 ==================== -->
+      <div class="modal-overlay" id="success-modal">
+        <div class="modal">
+          <div class="modal-icon">✅</div>
+          <div class="modal-title">预约成功！</div>
+          <div class="modal-info">预约编号: YD202605060001</div>
+          <div class="modal-info">服务: 面部清洁+肩颈按摩</div>
+          <div class="modal-info">时间: 5月6日 14:00</div>
+          <div class="modal-btn-group">
+            <button class="modal-btn modal-btn-secondary" onclick="closeModal(); goTo('page-appointments')">查看预约</button>
+            <button class="modal-btn modal-btn-primary" onclick="closeModal(); goTo('page-home')">返回首页</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ==================== 我的预约 ==================== -->
+      <div class="page" id="page-appointments">
+        <div class="header">
+          <div class="header-title">我的预约</div>
+          <div class="header-right"></div>
+        </div>
+        
+        <div class="tabs">
+          <div class="tab active">待服务</div>
+          <div class="tab">已完成</div>
+          <div class="tab">已取消</div>
+        </div>
+        
+        <div class="content">
+          <div class="appointment-card" onclick="goTo('page-appointment-detail')">
+            <span class="appointment-status status-pending">待确认</span>
+            <div class="appointment-title">美容店(总店)</div>
+            <div class="appointment-meta">5月6日 14:00</div>
+            <div class="appointment-services">面部深层清洁 + 肩颈按摩 | 陈美容师</div>
+          </div>
+          
+          <div class="appointment-card">
+            <span class="appointment-status status-confirmed">已确认</span>
+            <div class="appointment-title">美容店(总店)</div>
+            <div class="appointment-meta">5月3日 10:00</div>
+            <div class="appointment-services">面部深层清洁 | 李技师</div>
+          </div>
+          
+          <div class="appointment-card">
+            <span class="appointment-status status-completed">已完成</span>
+            <div class="appointment-title">美容店(总店)</div>
+            <div class="appointment-meta">5月1日 15:00</div>
+            <div class="appointment-services">眼部 SPA | 王技师</div>
+          </div>
+        </div>
+        
+        <div class="tab-bar">
+          <div class="tab-item" onclick="goTo('page-home')">
+            <div class="tab-icon">🏠</div>
+            <div class="tab-text">首页</div>
+          </div>
+          <div class="tab-item" onclick="goTo('page-booking')">
+            <div class="tab-icon">📅</div>
+            <div class="tab-text">预约</div>
+          </div>
+          <div class="tab-item active" onclick="goTo('page-appointments')">
+            <div class="tab-icon">📋</div>
+            <div class="tab-text">我的预约</div>
+          </div>
+          <div class="tab-item" onclick="goTo('page-member')">
+            <div class="tab-icon">👤</div>
+            <div class="tab-text">我的</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ==================== 预约详情 ==================== -->
+      <div class="page" id="page-appointment-detail">
+        <div class="header">
+          <div class="header-back" onclick="goTo('page-appointments')">←</div>
+          <div class="header-title">预约详情</div>
+          <div class="header-right"></div>
+        </div>
+        
+        <div class="content">
+          <div style="text-align: center; padding: 20px;">
+            <div style="display: inline-block; padding: 8px 16px; background: #FFF3E0; color: var(--warning); border-radius: 8px; font-size: 14px; font-weight: 600;">待确认</div>
+            <div style="font-size: 12px; color: var(--text-gray); margin-top: 8px;">请耐心等待门店确认</div>
+          </div>
+          
+          <div class="info-card">
+            <div class="info-card-title">预约编号</div>
+            <div style="font-size: 14px; color: var(--text-gray);">YD202605060001</div>
+          </div>
+          
+          <div class="info-card">
+            <div class="info-card-title">🏪 门店信息</div>
+            <div class="info-row">
+              <span class="info-label">门店名称</span>
+              <span class="info-value">美容店(总店)</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">门店地址</span>
+              <span class="info-value">北京市朝阳区xx路xx号</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">联系电话</span>
+              <span class="info-value" style="color: var(--primary);">400-888-8888</span>
+            </div>
+          </div>
+          
+          <div class="info-card">
+            <div class="info-card-title">👤 服务信息</div>
+            <div class="info-row">
+              <span class="info-label">美容师</span>
+              <span class="info-value">陈美容师</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">预约时间</span>
+              <span class="info-value">2026年5月6日 14:00</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">预计时长</span>
+              <span class="info-value">1小时45分钟</span>
+            </div>
+          </div>
+          
+          <div class="info-card">
+            <div class="info-card-title">💆 已选服务</div>
+            <div class="info-row">
+              <span class="info-label">面部深层清洁</span>
+              <span class="info-value">¥198</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">肩颈按摩</span>
+              <span class="info-value">¥168</span>
+            </div>
+            <div class="info-row total">
+              <span>合计</span>
+              <span style="color: var(--primary);">¥366</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bottom-action">
+          <button class="bottom-action-btn" style="background: var(--error); margin-bottom: 8px;" onclick="showToast('预约已取消')">取消预约</button>
+          <button class="bottom-action-btn" style="background: var(--white); color: var(--primary); border: 1px solid var(--primary);">再次预约</button>
+        </div>
+      </div>
+      
+      <!-- ==================== 会员中心 ==================== -->
+      <div class="page" id="page-member">
+        <div class="header" style="border: none;">
+          <div class="header-title">会员中心</div>
+          <div class="header-right"></div>
+        </div>
+        
+        <div class="content">
+          <div class="member-card">
+            <div class="member-header">
+              <div class="member-avatar">👩</div>
+              <div>
+                <div class="member-name">张小姐</div>
+                <div class="member-level">金卡会员</div>
+              </div>
+            </div>
+            <div class="member-stats">
+              <div class="member-stat">
+                <div class="member-stat-value">¥1,280</div>
+                <div class="member-stat-label">余额</div>
+              </div>
+              <div class="member-stat">
+                <div class="member-stat-value">2,560</div>
+                <div class="member-stat-label">积分</div>
+              </div>
+              <div class="member-stat">
+                <div class="member-stat-value">¥25.6</div>
+                <div class="member-stat-label">可抵扣</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="qr-code">
+            <div class="qr-placeholder">📱</div>
+            <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">会员码</div>
+            <div class="qr-timer">点击刷新 | 有效期 58秒</div>
+          </div>
+          
+          <div class="list-item" onclick="goTo('page-coupons')">
+            <span>🎫 我的优惠券</span>
+            <span style="color: var(--text-gray);">3张可用 ></span>
+          </div>
+          <div class="list-item">
+            <span>📦 我的套餐卡</span>
+            <span style="color: var(--text-gray);">2张有效 ></span>
+          </div>
+        </div>
+        
+        <div class="tab-bar">
+          <div class="tab-item" onclick="goTo('page-home')">
+            <div class="tab-icon">🏠</div>
+            <div class="tab-text">首页</div>
+          </div>
+          <div class="tab-item" onclick="goTo('page-booking')">
+            <div class="tab-icon">📅</div>
+            <div class="tab-text">预约</div>
+          </div>
+          <div class="tab-item" onclick="goTo('page-appointments')">
+            <div class="tab-icon">📋</div>
+            <div class="tab-text">我的预约</div>
+          </div>
+          <div class="tab-item active" onclick="goTo('page-member')">
+            <div class="tab-icon">👤</div>
+            <div class="tab-text">我的</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ==================== 优惠券 ==================== -->
+      <div class="page" id="page-coupons">
+        <div class="header">
+          <div class="header-back" onclick="goTo('page-member')">←</div>
+          <div class="header-title">我的优惠券</div>
+          <div class="header-right"></div>
+        </div>
+        
+        <div class="tabs">
+          <div class="tab active">可使用(3)</div>
+          <div class="tab">已使用(5)</div>
+          <div class="tab">已过期(2)</div>
+        </div>
+        
+        <div class="content">
+          <div class="coupon-card" onclick="showToast('优惠券详情')">
+            <div class="coupon-name">🎫 新客专享券</div>
+            <div class="coupon-desc">满100减30</div>
+            <div class="coupon-validity">有效期: 2026.5.1-5.31</div>
+            <div class="coupon-status-tag">去使用</div>
+          </div>
+          
+          <div class="coupon-card" onclick="showToast('优惠券详情')">
+            <div class="coupon-name">🎫 生日礼遇券</div>
+            <div class="coupon-desc">8折优惠券</div>
+            <div class="coupon-validity">有效期: 2026.5.1-5.15</div>
+            <div class="coupon-status-tag">去使用</div>
+          </div>
+          
+          <div class="coupon-card" onclick="showToast('优惠券详情')">
+            <div class="coupon-name">🎫 会员日专享</div>
+            <div class="coupon-desc">满200减50</div>
+            <div class="coupon-validity">有效期: 2026.5.1-5.31</div>
+            <div class="coupon-status-tag">去使用</div>
+          </div>
+          
+          <div class="coupon-card used" style="margin-top: 12px;">
+            <div class="coupon-name">🎫 积分兑换券</div>
+            <div class="coupon-desc">满200减50</div>
+            <div class="coupon-validity">有效期: 2026.4.1-4.30</div>
+            <div class="coupon-status-tag">已使用</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Toast -->
+      <div class="toast" id="toast" style="display: none;"></div>
+    </div>
+  </div>
+  
+  <script>
+    // Page Navigation
+    function goTo(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+    }
+    
+    // Toggle Service Selection
+    function toggleSelect(el) {
+      el.classList.toggle('selected');
+      updateSelectedCount();
+    }
+    
+    function updateSelectedCount() {
+      const count = document.querySelectorAll('#page-booking .service-card.selected').length;
+      const headerRight = document.querySelector('#page-booking .header-right');
+      headerRight.textContent = `已选 ${count} 项`;
+    }
+    
+    // Radio Selection
+    function selectRadio(el, group) {
+      const parent = el.closest('.content') || el.parentElement;
+      parent.querySelectorAll('.radio-item, .beautician-card').forEach(item => {
+        item.classList.remove('selected');
+      });
+      el.classList.add('selected');
+    }
+    
+    // Date Selection
+    function selectDate(el) {
+      if (el.classList.contains('disabled')) return;
+      document.querySelectorAll('.date-day').forEach(d => d.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+    
+    // Time Selection
+    function selectTime(el) {
+      if (el.classList.contains('disabled')) return;
+      document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+    
+    // Modal
+    function showSuccessModal() {
+      document.getElementById('success-modal').classList.add('active');
+    }
+    
+    function closeModal() {
+      document.getElementById('success-modal').classList.remove('active');
+    }
+    
+    // Toast
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 2000);
+    }
+    
+    // Update timer
+    let timerSeconds = 58;
+    setInterval(() => {
+      timerSeconds--;
+      if (timerSeconds < 0) timerSeconds = 60;
+      const timerEl = document.querySelector('.qr-timer');
+      if (timerEl) {
+        timerEl.textContent = `点击刷新 | 有效期 ${timerSeconds}秒`;
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
