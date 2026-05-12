@@ -118,7 +118,7 @@
     </el-row>
 
     <!-- 详情弹窗 -->
-    <el-dialog title="充值详情" :visible.sync="detailVisible" width="600px">
+    <el-dialog title="充值详情" v-model="detailVisible" width="600px">
       <el-descriptions :column="2" border v-if="detailData">
         <el-descriptions-item label="订单号">{{ detailData.orderNo }}</el-descriptions-item>
         <el-descriptions-item label="状态">
@@ -142,7 +142,7 @@
     </el-dialog>
 
     <!-- 退款弹窗 -->
-    <el-dialog title="退款" :visible.sync="refundVisible" width="400px">
+    <el-dialog title="退款" v-model="refundVisible" width="400px">
       <el-form ref="refundRef" :model="refundForm" :rules="refundRules" label-width="100px">
         <el-form-item label="订单号">
           <span>{{ refundForm.orderNo }}</span>

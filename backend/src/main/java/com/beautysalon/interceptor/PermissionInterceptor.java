@@ -92,6 +92,11 @@ public class PermissionInterceptor implements HandlerInterceptor {
             permissionCode = baseUri.replace("/", ":") + ":" + action;
         }
 
+        // 经理(role=4)拥有所有业务权限（不含系统管理 system:*）
+        if (role != null && role == 4 && !permissionCode.startsWith("system:")) {
+            return true;
+        }
+
         boolean hasPermission = permissionService.hasPermission(role, permissionCode);
         if (!hasPermission) {
             sendForbidden(response, "权限不足，无法执行该操作");

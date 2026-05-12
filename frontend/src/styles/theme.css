@@ -1,0 +1,166 @@
+/* =============================================
+   Beauty Salon - Element Plus Custom Theme
+   Brand Color: #e85d75 (Coral Pink)
+   ============================================= */
+
+/* ---- Element Plus Primary Color Override ---- */
+:root {
+  --el-color-primary: #e85d75;
+  --el-color-primary-light-3: #ef8a9d;
+  --el-color-primary-light-5: #f5b0bc;
+  --el-color-primary-light-7: #fad6dd;
+  --el-color-primary-light-8: #fce3e8;
+  --el-color-primary-light-9: #fef1f3;
+  --el-color-primary-dark-2: #c94a61;
+
+  /* ---- Brand Palette ---- */
+  --bs-primary: #e85d75;
+  --bs-primary-light: #fef1f3;
+  --bs-primary-dark: #c94a61;
+  --bs-secondary: #f5a623;
+  --bs-success: #52c41a;
+  --bs-warning: #faad14;
+  --bs-danger: #ff4d4f;
+  --bs-info: #4a90e2;
+
+  /* ---- Neutral Colors ---- */
+  --bs-text-primary: #1f2937;
+  --bs-text-regular: #4b5563;
+  --bs-text-secondary: #9ca3af;
+  --bs-text-placeholder: #d1d5db;
+  --bs-border-color: #e5e7eb;
+  --bs-bg-base: #f8fafc;
+  --bs-bg-white: #ffffff;
+
+  /* ---- Shadows ---- */
+  --bs-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --bs-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --bs-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --bs-shadow-pink: 0 4px 14px 0 rgba(232, 93, 117, 0.25);
+
+  /* ---- Transitions ---- */
+  --bs-transition-fast: all 0.15s ease;
+  --bs-transition-base: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --bs-transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---- Border Radius ---- */
+  --bs-radius-sm: 6px;
+  --bs-radius-md: 10px;
+  --bs-radius-lg: 16px;
+  --bs-radius-xl: 24px;
+}
+
+/* ---- Global Body ---- */
+body {
+  font-family: 'Inter', 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--bs-text-primary);
+  background-color: var(--bs-bg-base);
+}
+
+/* ---- Scrollbar Styling ---- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* ---- Element Plus Component Overrides ---- */
+
+/* Card */
+.el-card {
+  border-radius: var(--bs-radius-md) !important;
+  border: 1px solid var(--bs-border-color) !important;
+  box-shadow: var(--bs-shadow-sm) !important;
+  transition: var(--bs-transition-base);
+}
+.el-card:hover {
+  box-shadow: var(--bs-shadow-md) !important;
+}
+
+/* Table */
+.el-table {
+  border-radius: var(--bs-radius-md);
+  overflow: hidden;
+}
+.el-table th.el-table__cell {
+  background-color: #f9fafb !important;
+  font-weight: 600;
+  color: var(--bs-text-primary);
+}
+
+/* Button Primary Glow */
+.el-button--primary {
+  box-shadow: var(--bs-shadow-pink);
+  transition: var(--bs-transition-base);
+}
+.el-button--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px 0 rgba(232, 93, 117, 0.35);
+}
+
+/* Input */
+.el-input__wrapper {
+  border-radius: var(--bs-radius-sm) !important;
+  box-shadow: 0 0 0 1px var(--bs-border-color) inset !important;
+  transition: var(--bs-transition-base);
+}
+.el-input__wrapper:hover {
+  box-shadow: 0 0 0 1px var(--el-color-primary-light-3) inset !important;
+}
+.el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px var(--el-color-primary) inset !important;
+}
+
+/* Dialog */
+.el-dialog {
+  border-radius: var(--bs-radius-lg) !important;
+  box-shadow: var(--bs-shadow-lg) !important;
+}
+
+/* Tag */
+.el-tag {
+  border-radius: var(--bs-radius-sm) !important;
+  font-weight: 500;
+}
+
+/* Menu */
+.el-menu {
+  border-right: none !important;
+}
+
+/* Dropdown */
+.el-dropdown-menu {
+  border-radius: var(--bs-radius-md) !important;
+  box-shadow: var(--bs-shadow-lg) !important;
+  border: 1px solid var(--bs-border-color) !important;
+}
+
+/* Pagination */
+.el-pagination {
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/* Message */
+.el-message {
+  border-radius: var(--bs-radius-md) !important;
+  box-shadow: var(--bs-shadow-lg) !important;
+}
+
+/* Form */
+.el-form-item__label {
+  font-weight: 500;
+  color: var(--bs-text-regular);
+}

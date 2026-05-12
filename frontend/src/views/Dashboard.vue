@@ -1,36 +1,134 @@
 <template>
   <div class="dashboard-container">
-    <h2>首页</h2>
-    <el-row :gutter="20" v-loading="loading">
-      <el-col :span="6">
+    <!-- 页面标题 -->
+    <div class="bs-page-header">
+      <h2>首页概览</h2>
+      <p class="bs-page-desc">欢迎回来，今日营业数据一览</p>
+    </div>
+
+    <!-- 统计卡片 -->
+    <el-row :gutter="20" class="bs-stat-row" v-loading="loading">
+      <el-col :xs="24" :sm="12" :md="6">
+        <div class="bs-stat-card">
+          <div class="bs-stat-icon pink">
+            <el-icon><Calendar /></el-icon>
+          </div>
+          <div class="bs-stat-info">
+            <div class="bs-stat-value">{{ stats.todayAppointments }}</div>
+            <div class="bs-stat-label">今日预约</div>
+          </div>
+          <div class="bs-stat-trend up">+12%</div>
+        </div>
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="6">
+        <div class="bs-stat-card">
+          <div class="bs-stat-icon blue">
+            <el-icon><ShoppingCart /></el-icon>
+          </div>
+          <div class="bs-stat-info">
+            <div class="bs-stat-value">{{ stats.todayOrders }}</div>
+            <div class="bs-stat-label">今日订单</div>
+          </div>
+          <div class="bs-stat-trend up">+8%</div>
+        </div>
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="6">
+        <div class="bs-stat-card">
+          <div class="bs-stat-icon green">
+            <el-icon><User /></el-icon>
+          </div>
+          <div class="bs-stat-info">
+            <div class="bs-stat-value">{{ stats.totalCustomers }}</div>
+            <div class="bs-stat-label">客户总数</div>
+          </div>
+          <div class="bs-stat-trend up">+5%</div>
+        </div>
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="6">
+        <div class="bs-stat-card">
+          <div class="bs-stat-icon orange">
+            <el-icon><Money /></el-icon>
+          </div>
+          <div class="bs-stat-info">
+            <div class="bs-stat-value">¥{{ formatNumber(stats.todayRevenue) }}</div>
+            <div class="bs-stat-label">今日营收</div>
+          </div>
+          <div class="bs-stat-trend down">-3%</div>
+        </div>
+      </el-col>
+    </el-row>
+
+    <!-- 快捷入口 -->
+    <el-row :gutter="20" style="margin-bottom: 24px;">
+      <el-col :span="24">
         <el-card>
-          <div class="stat-item">
-            <div class="stat-value">{{ stats.todayAppointments }}</div>
-            <div class="stat-label">今日预约</div>
+          <template #header>
+            <div style="display: flex; align-items: center; gap: 8px; font-weight: 600;">
+              <el-icon><Grid /></el-icon>
+              快捷入口
+            </div>
+          </template>
+          <div class="quick-entry-grid">
+            <div
+              v-for="item in quickEntries"
+              :key="item.path"
+              class="quick-entry-item"
+              @click="$router.push(item.path)"
+            >
+              <div class="quick-entry-icon" :style="{ background: item.bgColor, color: item.iconColor }">
+                <el-icon :size="24"><component :is="item.icon" /></el-icon>
+              </div>
+              <span class="quick-entry-label">{{ item.label }}</span>
+            </div>
           </div>
         </el-card>
       </el-col>
-      <el-col :span="6">
+    </el-row>
+
+    <!-- 今日预约列表 -->
+    <el-row :gutter="20">
+      <el-col :xs="24" :lg="16">
         <el-card>
-          <div class="stat-item">
-            <div class="stat-value">{{ stats.todayOrders }}</div>
-            <div class="stat-label">今日订单</div>
-          </div>
+          <template #header>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px; font-weight: 600;">
+                <el-icon><List /></el-icon>
+                今日预约
+              </div>
+              <el-button text type="primary" @click="$router.push('/appointment')">
+                查看全部 <el-icon><ArrowRight /></el-icon>
+              </el-button>
+            </div>
+          </template>
+          <el-table :data="todayAppointments" style="width: 100%" size="small">
+            <el-table-column prop="time" label="时间" width="100" />
+            <el-table-column prop="customer" label="客户" />
+            <el-table-column prop="service" label="服务项目" />
+            <el-table-column prop="beautician" label="美容师" width="100" />
+            <el-table-column prop="status" label="状态" width="90">
+              <template #default="{ row }">
+                <el-tag :type="row.statusType" size="small">{{ row.status }}</el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
         </el-card>
       </el-col>
-      <el-col :span="6">
+      <el-col :xs="24" :lg="8">
         <el-card>
-          <div class="stat-item">
-            <div class="stat-value">{{ stats.totalCustomers }}</div>
-            <div class="stat-label">客户总数</div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card>
-          <div class="stat-item">
-            <div class="stat-value">¥{{ stats.todayRevenue }}</div>
-            <div class="stat-label">今日营收</div>
+          <template #header>
+            <div style="display: flex; align-items: center; gap: 8px; font-weight: 600;">
+              <el-icon><Bell /></el-icon>
+              通知公告
+            </div>
+          </template>
+          <div class="notice-list">
+            <div v-for="(notice, index) in notices" :key="index" class="notice-item">
+              <div class="notice-dot" />
+              <div class="notice-content">
+                <p class="notice-title">{{ notice.title }}</p>
+                <p class="notice-time">{{ notice.time }}</p>
+              </div>
+            </div>
           </div>
         </el-card>
       </el-col>
@@ -40,6 +138,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import {
+  Calendar, ShoppingCart, User, Money, Grid,
+  List, ArrowRight, Bell, Plus, Ticket, Timer,
+  Present, FirstAidKit
+} from '@element-plus/icons-vue'
 import { getDashboardStats } from '@/api/dashboard'
 
 const loading = ref(false)
@@ -50,17 +153,45 @@ const stats = ref({
   todayRevenue: 0
 })
 
+const quickEntries = [
+  { label: '新建预约', path: '/appointment', icon: Plus, bgColor: '#fef1f3', iconColor: '#e85d75' },
+  { label: '新增客户', path: '/customer', icon: User, bgColor: '#eff6ff', iconColor: '#4a90e2' },
+  { label: '发放优惠券', path: '/coupon', icon: Ticket, bgColor: '#f0fdf4', iconColor: '#52c41a' },
+  { label: '排班调整', path: '/schedule', icon: Timer, bgColor: '#fffbeb', iconColor: '#f5a623' },
+  { label: '发布活动', path: '/campaign', icon: Present, bgColor: '#fef1f3', iconColor: '#e85d75' },
+  { label: '添加服务', path: '/service', icon: FirstAidKit, bgColor: '#f3f4f6', iconColor: '#6b7280' }
+]
+
+const todayAppointments = ref([
+  { time: '09:30', customer: '王女士', service: '面部深层清洁', beautician: '小林', status: '已完成', statusType: 'success' },
+  { time: '10:00', customer: '李女士', service: '玻尿酸补水', beautician: '小王', status: '进行中', statusType: 'primary' },
+  { time: '11:30', customer: '张女士', service: '光子嫩肤', beautician: '小李', status: '待服务', statusType: 'warning' },
+  { time: '14:00', customer: '陈女士', service: '日式美甲', beautician: '小张', status: '待服务', statusType: 'warning' },
+  { time: '15:30', customer: '赵女士', service: '身体按摩', beautician: '小林', status: '待服务', statusType: 'warning' }
+])
+
+const notices = ref([
+  { title: '母亲节特惠活动将于本周五开始', time: '2小时前' },
+  { title: '新美容师小李已入职，请完善档案', time: '5小时前' },
+  { title: '系统将于今晚22:00进行例行维护', time: '1天前' },
+  { title: '本月会员充值优惠活动还剩3天', time: '2天前' }
+])
+
+const formatNumber = (num) => {
+  if (!num) return '0'
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
 const fetchStats = async () => {
   loading.value = true
   try {
     const res = await getDashboardStats()
-    if (res.code === 200) {
-      stats.value = {
-        todayAppointments: res.data.todayAppointments || 0,
-        todayOrders: res.data.todayOrders || 0,
-        totalCustomers: res.data.totalCustomers || 0,
-        todayRevenue: res.data.todayRevenue || 0
-      }
+    const data = res.data || res
+    stats.value = {
+      todayAppointments: data.todayAppointments || 0,
+      todayOrders: data.todayOrders || 0,
+      totalCustomers: data.totalCustomers || 0,
+      todayRevenue: data.todayRevenue || 0
     }
   } catch (error) {
     console.error('获取首页数据失败', error)
@@ -76,28 +207,92 @@ onMounted(() => {
 
 <style scoped>
 .dashboard-container {
-  padding: 20px;
+  padding: 0;
 }
 
-.dashboard-container h2 {
-  margin-bottom: 20px;
-  font-size: 20px;
-  color: #303133;
+.quick-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
 }
 
-.stat-item {
-  text-align: center;
+.quick-entry-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
 
-.stat-value {
-  font-size: 28px;
-  font-weight: bold;
-  color: #409eff;
-  margin-bottom: 10px;
+.quick-entry-item:hover {
+  background: #f8fafc;
+  transform: translateY(-2px);
 }
 
-.stat-label {
+.quick-entry-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+}
+
+.quick-entry-item:hover .quick-entry-icon {
+  transform: scale(1.05);
+}
+
+.quick-entry-label {
+  font-size: 13px;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.notice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.notice-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.notice-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e85d75;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.notice-content {
+  flex: 1;
+}
+
+.notice-title {
   font-size: 14px;
-  color: #909399;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+  line-height: 1.5;
+}
+
+.notice-time {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+@media (max-width: 1200px) {
+  .quick-entry-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 </style>

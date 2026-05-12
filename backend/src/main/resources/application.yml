@@ -1,6 +1,6 @@
 # 应用配置
 server:
-  port: 19084
+  port: ${SERVER_PORT:19084}
   servlet:
     context-path: /api
 
@@ -18,19 +18,19 @@ spring:
     resources:
       add-mappings: false
 
-  # 数据源配置
+  # 数据源配置（生产环境请通过环境变量注入）
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysql.pnkx.top:13306/beauty_salon?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456
+    url: ${DB_URL:jdbc:mysql://localhost:3306/beauty_salon?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:123456}
 
   # Redis 配置
   redis:
-    host: localhost
-    port: 6379
-    password: # 请修改为安全的Redis密码，生产环境必须设置
-    database: 0
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+    database: ${REDIS_DATABASE:0}
     timeout: 5000
     lettuce:
       pool:
@@ -43,6 +43,10 @@ spring:
   session:
     store-type: redis
     timeout: 86400
+
+# 安全配置
+cors:
+  allowed-origins: ${CORS_ORIGINS:http://localhost:3000,http://127.0.0.1:3000,http://localhost:9084,http://127.0.0.1:9084,http://localhost:5174}
 
 # MyBatis-Plus 配置
 mybatis-plus:
@@ -59,19 +63,20 @@ mybatis-plus:
     cache-enabled: false
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-# JWT 配置
+# JWT 配置（生产环境必须通过环境变量设置强密钥）
 jwt:
-  secret: beauty-salon-jwt-secret-key-2024
-  expiration: 86400000  # 24小时（毫秒）
+  secret: ${JWT_SECRET:beauty-salon-jwt-secret-key-2024-default}
+  expiration: ${JWT_EXPIRATION:7200000}        # Access Token 有效期：2小时（毫秒）
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}  # Refresh Token 有效期：7天（毫秒）
   header: Authorization
   prefix: Bearer
 
-# Swagger 配置
+# Swagger 配置（生产环境建议禁用）
 springfox:
   documentation:
-    enabled: true
+    enabled: ${SWAGGER_ENABLED:true}
     swagger-ui:
-      enabled: true
+      enabled: ${SWAGGER_ENABLED:true}
 
 # 日志配置
 logging:

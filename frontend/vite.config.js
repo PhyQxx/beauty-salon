@@ -31,7 +31,13 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:19084',
-        changeOrigin: true
+        changeOrigin: true,
+        configure: (proxy, options) => {
+          proxy.on('proxyReq', (proxyReq, req) => {
+            // 移除 Origin header，避免后端触发 CORS 检查
+            proxyReq.removeHeader('origin')
+          })
+        }
       }
     }
   }

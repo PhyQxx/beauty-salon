@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -440,6 +441,20 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     /**
+     * 获取来源文本
+     */
+    private String getSourceText(String source) {
+        if (source == null) return "线下";
+        switch (source) {
+            case "wechat": return "微信";
+            case "miniapp": return "小程序";
+            case "h5": return "H5";
+            case "offline": return "线下";
+            default: return "线下";
+        }
+    }
+
+    /**
      * 检查手机号是否已存在
      *
      * @param phone 手机号码
@@ -453,6 +468,21 @@ public class CustomerServiceImpl implements CustomerService {
         LambdaQueryWrapper<CrmCustomer> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(CrmCustomer::getPhone, phone);
         return customerMapper.selectCount(wrapper) > 0;
+    }
+
+    @Override
+    public List<Map<String, Object>> getSimpleList() {
+        LambdaQueryWrapper<CrmCustomer> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(CrmCustomer::getDeleted, 0);
+        wrapper.select(CrmCustomer::getId, CrmCustomer::getName, CrmCustomer::getPhone);
+        List<CrmCustomer> list = customerMapper.selectList(wrapper);
+        return list.stream().map(c -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", c.getId());
+            map.put("name", c.getName());
+            map.put("phone", c.getPhone());
+            return map;
+        }).collect(java.util.stream.Collectors.toList());
     }
 
     /**
@@ -469,6 +499,7 @@ public class CustomerServiceImpl implements CustomerService {
         vo.setGenderText(GENDER_MAP.getOrDefault(customer.getGender(), "未知"));
         vo.setMemberLevelText(MEMBER_LEVEL_MAP.getOrDefault(customer.getMemberLevel(), "普通会员"));
         vo.setStatusText(STATUS_MAP.getOrDefault(customer.getStatus(), "未知"));
+        vo.setSourceText(getSourceText(customer.getSource()));
 
         // 计算年龄
         if (customer.getBirthday() != null) {

@@ -218,7 +218,8 @@ public class PosCampaignController {
             List<CampaignVO> list = campaignService.listCampaigns(queryDTO);
             
             result.put("success", true);
-            result.put("data", list);
+            result.put("list", list);
+            result.put("total", list != null ? list.size() : 0);
             result.put("page", page);
             result.put("limit", limit);
             

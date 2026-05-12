@@ -59,6 +59,36 @@ public class CrmCustomer {
     private BigDecimal balance;
 
     /**
+     * 赠送金余额
+     */
+    private BigDecimal giftBalance;
+
+    /**
+     * 累计消费金额
+     */
+    private BigDecimal totalConsume;
+
+    /**
+     * 累计获得积分
+     */
+    private Integer totalPointsEarned;
+
+    /**
+     * 累计使用积分
+     */
+    private Integer totalPointsUsed;
+
+    /**
+     * 注册来源
+     */
+    private String source;
+
+    /**
+     * 归属门店ID
+     */
+    private Long storeId;
+
+    /**
      * 客户状态：0-无效，1-有效
      */
     private Integer status;

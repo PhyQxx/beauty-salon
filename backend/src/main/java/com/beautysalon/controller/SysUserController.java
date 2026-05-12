@@ -1,6 +1,7 @@
 package com.beautysalon.controller;
 
 import com.beautysalon.common.JwtUtil;
+import com.beautysalon.common.Result;
 import com.beautysalon.config.JwtAuthenticationFilter;
 import com.beautysalon.entity.SysUser;
 import com.beautysalon.service.SysUserService;
@@ -35,18 +36,48 @@ public class SysUserController {
 
     @ApiOperation("用户登录")
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginRequest) {
+    public Result<Map<String, Object>> login(@RequestBody Map<String, String> loginRequest) {
         String username = loginRequest.get("username");
         String password = loginRequest.get("password");
         if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-            return badRequest("用户名和密码不能为空");
+            return Result.badRequest("用户名和密码不能为空");
         }
         try {
             Map<String, Object> result = userService.login(username, password);
-            result.put("code", 200);
-            return ResponseEntity.ok(result);
+            return Result.success("登录成功", result);
         } catch (RuntimeException e) {
-            return unauthorized(e.getMessage());
+            return Result.unauthorized(e.getMessage());
+        }
+    }
+
+    @ApiOperation("刷新 Token")
+    @PostMapping("/refresh")
+    public Result<Map<String, Object>> refreshToken(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        if (refreshToken == null || refreshToken.trim().isEmpty()) {
+            return Result.unauthorized("Refresh Token 不能为空");
+        }
+        try {
+            if (jwtUtil.isTokenExpired(refreshToken)) {
+                return Result.unauthorized("Refresh Token 已过期，请重新登录");
+            }
+            String tokenType = jwtUtil.getTokenType(refreshToken);
+            if (!"refresh".equals(tokenType)) {
+                return Result.unauthorized("无效的 Refresh Token");
+            }
+            Long userId = jwtUtil.getUserIdFromToken(refreshToken);
+            String username = jwtUtil.getUsernameFromToken(refreshToken);
+            Integer role = jwtUtil.getRoleFromToken(refreshToken);
+
+            String newToken = jwtUtil.generateToken(userId, username, role);
+            String newRefreshToken = jwtUtil.generateRefreshToken(userId, username, role);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("token", newToken);
+            result.put("refreshToken", newRefreshToken);
+            return Result.success("刷新成功", result);
+        } catch (Exception e) {
+            return Result.unauthorized("Refresh Token 无效");
         }
     }
 
@@ -88,15 +119,13 @@ public class SysUserController {
 
     @ApiOperation("分页查询用户列表")
     @GetMapping("/list")
-    public ResponseEntity<Map<String, Object>> list(
+    public Result<Map<String, Object>> list(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer limit,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Integer role) {
         Map<String, Object> result = userService.queryUserPage(page, limit, keyword, role);
-        result.put("code", 200);
-        result.put("message", "查询成功");
-        return ResponseEntity.ok(result);
+        return Result.success("查询成功", result);
     }
 
     @ApiOperation("根据ID获取用户详情")

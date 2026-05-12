@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/system/log")
+@RequestMapping("/system/log")
 public class SysLogController {
 
     @Autowired

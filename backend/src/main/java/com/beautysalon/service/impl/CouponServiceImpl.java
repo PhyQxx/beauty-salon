@@ -53,7 +53,7 @@ public class CouponServiceImpl implements CouponService {
         Map<String, Object> result = new HashMap<>();
         result.put("code", 200);
         result.put("message", "查询成功");
-        result.put("data", list);
+        result.put("list", list);
         result.put("total", total);
         result.put("pageNum", page);
         result.put("pageSize", limit);

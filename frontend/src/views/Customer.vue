@@ -89,7 +89,7 @@
     </el-card>
 
     <!-- 新增/编辑弹窗 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="600px" @close="handleDialogClose">
+    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="600px" @close="handleDialogClose">
       <el-form ref="formRef" :model="formData" :rules="formRules" label-width="100px">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="formData.name" placeholder="请输入姓名" />
@@ -135,7 +135,7 @@
     </el-dialog>
 
     <!-- 详情弹窗 -->
-    <el-dialog title="客户详情" :visible.sync="detailVisible" width="700px">
+    <el-dialog title="客户详情" v-model="detailVisible" width="700px">
       <el-descriptions :column="2" border v-if="detailData">
         <el-descriptions-item label="姓名">{{ detailData.name }}</el-descriptions-item>
         <el-descriptions-item label="手机号">{{ detailData.phone }}</el-descriptions-item>
@@ -158,7 +158,7 @@
     </el-dialog>
 
     <!-- 充值弹窗 -->
-    <el-dialog title="账户充值" :visible.sync="rechargeVisible" width="400px">
+    <el-dialog title="账户充值" v-model="rechargeVisible" width="400px">
       <el-form ref="rechargeRef" :model="rechargeForm" :rules="rechargeRules" label-width="80px">
         <el-form-item label="客户">
           <span>{{ rechargeForm.customerName }}</span>

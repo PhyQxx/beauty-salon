@@ -43,7 +43,7 @@
 
     <!-- 按时间范围统计充值金额 -->
     <select id="sumAmountByDateRange" resultType="java.math.BigDecimal">
-        SELECT COALESCE(SUM(recharge_amount), 0) FROM pos_recharge
+        SELECT COALESCE(SUM(amount), 0) FROM pos_recharge
         WHERE deleted = 0
           AND create_time &gt;= #{startTime}
           AND create_time &lt;= #{endTime}

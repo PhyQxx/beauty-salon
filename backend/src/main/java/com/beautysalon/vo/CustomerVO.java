@@ -78,6 +78,36 @@ public class CustomerVO {
     private BigDecimal balance;
 
     /**
+     * 赠送金余额
+     */
+    @ApiModelProperty(value = "赠送金余额")
+    private BigDecimal giftBalance;
+
+    /**
+     * 累计消费金额
+     */
+    @ApiModelProperty(value = "累计消费")
+    private BigDecimal totalConsume;
+
+    /**
+     * 累计获得积分
+     */
+    @ApiModelProperty(value = "累计获得积分")
+    private Integer totalPointsEarned;
+
+    /**
+     * 累计使用积分
+     */
+    @ApiModelProperty(value = "累计使用积分")
+    private Integer totalPointsUsed;
+
+    /**
+     * 归属门店ID
+     */
+    @ApiModelProperty(value = "归属门店ID")
+    private Long storeId;
+
+    /**
      * 客户状态
      */
     @ApiModelProperty(value = "状态")

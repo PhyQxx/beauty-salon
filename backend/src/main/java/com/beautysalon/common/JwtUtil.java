@@ -21,25 +21,42 @@ public class JwtUtil {
     @Value("${jwt.secret:beauty-salon-jwt-secret-key-2024}")
     private String secret;
 
-    @Value("${jwt.expiration:86400000}")
+    @Value("${jwt.expiration:7200000}")
     private Long expiration;
 
+    @Value("${jwt.refresh-expiration:604800000}")
+    private Long refreshExpiration;
+
     /**
-     * 生成 Token
+     * 生成 Access Token
      */
-    public String generateToken(Long userId, String username) {
+    public String generateToken(Long userId, String username, Integer role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("username", username);
-        return createToken(claims, username);
+        claims.put("role", role);
+        claims.put("tokenType", "access");
+        return createToken(claims, username, expiration);
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    /**
+     * 生成 Refresh Token
+     */
+    public String generateRefreshToken(Long userId, String username, Integer role) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+        claims.put("username", username);
+        claims.put("role", role);
+        claims.put("tokenType", "refresh");
+        return createToken(claims, username, refreshExpiration);
+    }
+
+    private String createToken(Map<String, Object> claims, String subject, long expireMs) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setExpiration(new Date(System.currentTimeMillis() + expireMs))
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
                 .compact();
     }
@@ -68,6 +85,18 @@ public class JwtUtil {
     }
 
     /**
+     * 获取 Token 类型
+     */
+    public String getTokenType(String token) {
+        try {
+            Object tokenType = parseToken(token).get("tokenType");
+            return tokenType != null ? tokenType.toString() : "access";
+        } catch (Exception e) {
+            return "access";
+        }
+    }
+
+    /**
      * 获取用户名从 Token
      */
     public String getUsernameFromToken(String token) {
@@ -83,6 +112,14 @@ public class JwtUtil {
             return ((Integer) userId).longValue();
         }
         return (Long) userId;
+    }
+
+    /**
+     * 获取角色从 Token
+     */
+    public Integer getRoleFromToken(String token) {
+        Object role = parseToken(token).get("role");
+        return role != null ? ((Number) role).intValue() : null;
     }
 
     /**

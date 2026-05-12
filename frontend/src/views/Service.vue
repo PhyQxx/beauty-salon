@@ -77,7 +77,7 @@
     </el-card>
 
     <!-- 新增/编辑弹窗 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="600px" @close="handleDialogClose">
+    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="600px" @close="handleDialogClose">
       <el-form ref="formRef" :model="formData" :rules="formRules" label-width="100px">
         <el-form-item label="项目名称" prop="name">
           <el-input v-model="formData.name" placeholder="请输入项目名称" />
@@ -113,7 +113,7 @@
     </el-dialog>
 
     <!-- 详情弹窗 -->
-    <el-dialog title="项目详情" :visible.sync="detailVisible" width="600px">
+    <el-dialog title="项目详情" v-model="detailVisible" width="600px">
       <el-descriptions :column="2" border v-if="detailData">
         <el-descriptions-item label="项目名称">{{ detailData.name }}</el-descriptions-item>
         <el-descriptions-item label="服务分类">{{ detailData.categoryName }}</el-descriptions-item>

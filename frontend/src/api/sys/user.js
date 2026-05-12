@@ -19,6 +19,18 @@ export function login(username, password) {
 }
 
 /**
+ * 刷新 Token
+ * @param {string} refreshToken
+ */
+export function refreshToken(refreshToken) {
+  return request({
+    url: '/sys/user/refresh',
+    method: 'post',
+    data: { refreshToken }
+  })
+}
+
+/**
  * 用户登出
  */
 export function logout() {

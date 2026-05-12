@@ -1,5 +1,6 @@
 package com.beautysalon.config;
 
+import com.beautysalon.common.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +15,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 全局异常处理器
@@ -31,105 +30,95 @@ public class GlobalExceptionHandler {
      * 业务异常（RuntimeException）
      */
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException e, HttpServletRequest request) {
+    public ResponseEntity<Result<Void>> handleRuntimeException(RuntimeException e, HttpServletRequest request) {
         log.warn("业务异常: path={}, msg={}", request.getRequestURI(), e.getMessage());
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+        return ResponseEntity.ok(Result.error(400, e.getMessage()));
     }
 
     /**
      * 业务异常（自定义业务异常）
      */
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<Map<String, Object>> handleBusinessException(BusinessException e) {
+    public ResponseEntity<Result<Void>> handleBusinessException(BusinessException e) {
         log.warn("业务异常: code={}, msg={}", e.getCode(), e.getMessage());
-        return buildErrorResponse(HttpStatus.valueOf(e.getCode()), e.getMessage());
+        return ResponseEntity.ok(Result.error(e.getCode(), e.getMessage()));
     }
 
     /**
      * 参数校验异常
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException e) {
+    public ResponseEntity<Result<Void>> handleValidationException(MethodArgumentNotValidException e) {
         StringBuilder sb = new StringBuilder();
         for (FieldError error : e.getBindingResult().getFieldErrors()) {
             sb.append(error.getField()).append(": ").append(error.getDefaultMessage()).append("; ");
         }
         String msg = sb.length() > 0 ? sb.substring(0, sb.length() - 2) : "参数校验失败";
         log.warn("参数校验异常: {}", msg);
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+        return ResponseEntity.ok(Result.badRequest(msg));
     }
 
     /**
      * 参数绑定异常
      */
     @ExceptionHandler(BindException.class)
-    public ResponseEntity<Map<String, Object>> handleBindException(BindException e) {
+    public ResponseEntity<Result<Void>> handleBindException(BindException e) {
         StringBuilder sb = new StringBuilder();
         for (FieldError error : e.getBindingResult().getFieldErrors()) {
             sb.append(error.getField()).append(": ").append(error.getDefaultMessage()).append("; ");
         }
         String msg = sb.length() > 0 ? sb.substring(0, sb.length() - 2) : "参数绑定失败";
         log.warn("参数绑定异常: {}", msg);
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+        return ResponseEntity.ok(Result.badRequest(msg));
     }
 
     /**
      * 缺少请求参数
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<Map<String, Object>> handleMissingParam(MissingServletRequestParameterException e) {
+    public ResponseEntity<Result<Void>> handleMissingParam(MissingServletRequestParameterException e) {
         String msg = "缺少请求参数: " + e.getParameterName();
         log.warn("缺少请求参数: {}", e.getParameterName());
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+        return ResponseEntity.ok(Result.badRequest(msg));
     }
 
     /**
      * 参数类型不匹配
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<Map<String, Object>> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+    public ResponseEntity<Result<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
         String msg = "参数类型错误: " + e.getName() + " 应为 " + (e.getRequiredType() != null ? e.getRequiredType().getSimpleName() : "未知类型");
         log.warn("参数类型错误: {}", e.getMessage());
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, msg);
+        return ResponseEntity.ok(Result.badRequest(msg));
     }
 
     /**
      * 请求方法不支持
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<Map<String, Object>> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
+    public ResponseEntity<Result<Void>> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
         String msg = "不支持的请求方法: " + e.getMethod();
         log.warn("不支持的请求方法: {}", e.getMethod());
-        return buildErrorResponse(HttpStatus.METHOD_NOT_ALLOWED, msg);
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(Result.error(405, msg));
     }
 
     /**
      * 404 找不到处理器
      */
     @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleNoHandler(NoHandlerFoundException e) {
+    public ResponseEntity<Result<Void>> handleNoHandler(NoHandlerFoundException e) {
         String msg = "接口不存在: " + e.getRequestURL();
         log.warn("接口不存在: {}", e.getRequestURL());
-        return buildErrorResponse(HttpStatus.NOT_FOUND, msg);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Result.notFound(msg));
     }
 
     /**
      * 其他未捕获异常
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleException(Exception e, HttpServletRequest request) {
+    public ResponseEntity<Result<Void>> handleException(Exception e, HttpServletRequest request) {
         log.error("系统异常: path={}, msg={}", request.getRequestURI(), e.getMessage(), e);
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "系统内部错误，请稍后重试");
-    }
-
-    /**
-     * 构建统一错误响应
-     */
-    private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpStatus status, String message) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("code", status.value());
-        body.put("message", message);
-        return ResponseEntity.status(status).body(body);
+        return ResponseEntity.ok(Result.error("系统内部错误，请稍后重试"));
     }
 
     /**

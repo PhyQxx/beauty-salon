@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/system/permission")
+@RequestMapping("/system/permission")
 public class SysPermissionController {
 
     @Autowired

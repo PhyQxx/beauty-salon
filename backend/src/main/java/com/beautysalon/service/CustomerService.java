@@ -112,4 +112,11 @@ public interface CustomerService {
      * @return 是否存在
      */
     boolean isPhoneExists(String phone);
+
+    /**
+     * 获取客户简要列表（下拉框用）
+     *
+     * @return 客户简要信息列表
+     */
+    java.util.List<java.util.Map<String, Object>> getSimpleList();
 }

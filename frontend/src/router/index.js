@@ -14,7 +14,10 @@ import Coupon from '@/views/Coupon.vue'
 import Service from '@/views/Service.vue'
 import MembershipCard from '@/views/MembershipCard.vue'
 import Recharge from '@/views/Recharge.vue'
+import Order from '@/views/Order.vue'
 import Beautician from '@/views/Beautician.vue'
+import Schedule from '@/views/Schedule.vue'
+import BeauticianTimeline from '@/views/BeauticianTimeline.vue'
 import Permission from '@/views/system/Permission.vue'
 import SystemLog from '@/views/system/SystemLog.vue'
 
@@ -32,85 +35,87 @@ const authGuard = (to, from, next) => {
 
 const routes = [
   {
-    path: '/',
-    redirect: '/dashboard'
-  },
-  {
     path: '/login',
     name: 'Login',
     component: Login
   },
   {
-    path: '/home',
-    name: 'Home',
+    path: '/',
     component: Home,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: Dashboard,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/appointment',
-    name: 'Appointment',
-    component: Appointment,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/customer',
-    name: 'Customer',
-    component: Customer,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/campaign',
-    name: 'Campaign',
-    component: Campaign,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/coupon',
-    name: 'Coupon',
-    component: Coupon,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/service',
-    name: 'Service',
-    component: Service,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/membership-card',
-    name: 'MembershipCard',
-    component: MembershipCard,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/recharge',
-    name: 'Recharge',
-    component: Recharge,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/beautician',
-    name: 'Beautician',
-    component: Beautician,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/system/permission',
-    name: 'Permission',
-    component: Permission,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/system/log',
-    name: 'SystemLog',
-    component: SystemLog,
-    meta: { requiresAuth: true }
+    redirect: '/dashboard',
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: '/dashboard',
+        name: 'Dashboard',
+        component: Dashboard
+      },
+      {
+        path: '/appointment',
+        name: 'Appointment',
+        component: Appointment
+      },
+      {
+        path: '/customer',
+        name: 'Customer',
+        component: Customer
+      },
+      {
+        path: '/campaign',
+        name: 'Campaign',
+        component: Campaign
+      },
+      {
+        path: '/coupon',
+        name: 'Coupon',
+        component: Coupon
+      },
+      {
+        path: '/service',
+        name: 'Service',
+        component: Service
+      },
+      {
+        path: '/membership-card',
+        name: 'MembershipCard',
+        component: MembershipCard
+      },
+      {
+        path: '/recharge',
+        name: 'Recharge',
+        component: Recharge
+      },
+      {
+        path: '/order',
+        name: 'Order',
+        component: Order
+      },
+      {
+        path: '/beautician',
+        name: 'Beautician',
+        component: Beautician
+      },
+      {
+        path: '/schedule',
+        name: 'Schedule',
+        component: Schedule
+      },
+      {
+        path: '/beautician-timeline',
+        name: 'BeauticianTimeline',
+        component: BeauticianTimeline
+      },
+      {
+        path: '/system/permission',
+        name: 'Permission',
+        component: Permission
+      },
+      {
+        path: '/system/log',
+        name: 'SystemLog',
+        component: SystemLog
+      }
+    ]
   }
 ]
 

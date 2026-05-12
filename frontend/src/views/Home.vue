@@ -1,156 +1,188 @@
 <template>
   <div class="home-container">
-    <el-container>
-      <!-- 侧边栏 -->
-      <el-aside width="200px">
-        <div class="logo">美容沙龙</div>
-        <el-menu default-active="1" class="el-menu-vertical" :router="true">
-          <el-menu-item index="/home">
+    <!-- 侧边栏 -->
+    <aside class="bs-sidebar">
+      <div class="bs-sidebar-logo">
+        <div class="logo-icon">美</div>
+        <span class="logo-text">美容沙龙</span>
+      </div>
+
+      <div class="bs-sidebar-menu">
+        <el-menu :default-active="activeMenu" class="el-menu-vertical" :router="true" :collapse="false">
+          <el-menu-item index="/dashboard">
+            <el-icon><Odometer /></el-icon>
             <span>首页</span>
           </el-menu-item>
           <el-menu-item index="/customer">
+            <el-icon><User /></el-icon>
             <span>客户管理</span>
           </el-menu-item>
           <el-menu-item index="/appointment">
+            <el-icon><Calendar /></el-icon>
             <span>预约管理</span>
           </el-menu-item>
           <el-menu-item index="/service">
+            <el-icon><FirstAidKit /></el-icon>
             <span>服务项目</span>
           </el-menu-item>
           <el-menu-item index="/membership-card">
+            <el-icon><CreditCard /></el-icon>
             <span>会员卡</span>
           </el-menu-item>
           <el-menu-item index="/recharge">
+            <el-icon><Money /></el-icon>
             <span>充值管理</span>
           </el-menu-item>
+          <el-menu-item index="/order">
+            <el-icon><ShoppingCart /></el-icon>
+            <span>订单管理</span>
+          </el-menu-item>
           <el-menu-item index="/beautician">
+            <el-icon><UserFilled /></el-icon>
             <span>美容师</span>
           </el-menu-item>
+          <el-menu-item index="/schedule">
+            <el-icon><Timer /></el-icon>
+            <span>排班管理</span>
+          </el-menu-item>
+          <el-menu-item index="/beautician-timeline">
+            <el-icon><View /></el-icon>
+            <span>预约看板</span>
+          </el-menu-item>
           <el-menu-item index="/campaign">
+            <el-icon><Present /></el-icon>
             <span>活动管理</span>
           </el-menu-item>
           <el-menu-item index="/coupon">
+            <el-icon><Ticket /></el-icon>
             <span>优惠券管理</span>
           </el-menu-item>
-          <el-divider />
+
+          <div class="bs-sidebar-divider" />
+
           <el-menu-item index="/system/permission">
-            <span>🛡️ 权限管理</span>
+            <el-icon><Lock /></el-icon>
+            <span>权限管理</span>
           </el-menu-item>
           <el-menu-item index="/system/log">
-            <span>📋 日志管理</span>
+            <el-icon><Document /></el-icon>
+            <span>日志管理</span>
           </el-menu-item>
         </el-menu>
-      </el-aside>
+      </div>
 
-      <el-container>
-        <!-- 头部 -->
-        <el-header>
-          <span>欢迎使用美容沙龙管理系统</span>
+      <div class="bs-sidebar-footer">
+        Beauty Salon v1.0
+      </div>
+    </aside>
+
+    <!-- 主区域 -->
+    <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+      <!-- 头部 -->
+      <header class="bs-header">
+        <div class="bs-header-breadcrumb">
+          <el-icon style="margin-right: 4px; vertical-align: middle;"><Location /></el-icon>
+          {{ pageTitle }}
+        </div>
+        <div class="bs-header-actions">
+          <button class="bs-header-icon-btn" title="通知">
+            <el-icon><Bell /></el-icon>
+          </button>
+          <button class="bs-header-icon-btn" title="设置">
+            <el-icon><Setting /></el-icon>
+          </button>
           <el-dropdown>
-            <span class="el-dropdown-link">
-              管理员<i class="el-icon-arrow-down el-icon--right"></i>
-            </span>
+            <div class="bs-header-user">
+              <div class="user-avatar">管</div>
+              <span class="user-name">管理员</span>
+              <el-icon><ArrowDown /></el-icon>
+            </div>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item>个人中心</el-dropdown-item>
-                <el-dropdown-item>修改密码</el-dropdown-item>
-                <el-dropdown-item divided>退出登录</el-dropdown-item>
+                <el-dropdown-item @click="handleProfile">
+                  <el-icon><User /></el-icon>个人中心
+                </el-dropdown-item>
+                <el-dropdown-item @click="handleChangePassword">
+                  <el-icon><Key /></el-icon>修改密码
+                </el-dropdown-item>
+                <el-dropdown-item divided @click="handleLogout">
+                  <el-icon><SwitchButton /></el-icon>退出登录
+                </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-        </el-header>
+        </div>
+      </header>
 
-        <!-- 主内容区 -->
-        <el-main>
-          <router-view />
-        </el-main>
-      </el-container>
-    </el-container>
+      <!-- 主内容区 -->
+      <main class="bs-main">
+        <router-view />
+      </main>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { getDashboardStats } from '@/api/dashboard'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import Cookies from 'js-cookie'
+import {
+  Odometer, User, Calendar, FirstAidKit, CreditCard,
+  Money, ShoppingCart, UserFilled, Timer, Present,
+  Ticket, Lock, Document, Bell, Setting, ArrowDown,
+  Location, Key, SwitchButton, View
+} from '@element-plus/icons-vue'
 
-const stats = ref({
-  todayAppointments: 0,
-  todayOrders: 0,
-  totalCustomers: 0,
-  todayRevenue: 0
+const route = useRoute()
+const router = useRouter()
+const activeMenu = computed(() => route.path)
+
+const pageTitle = computed(() => {
+  const titles = {
+    '/dashboard': '首页概览',
+    '/customer': '客户管理',
+    '/appointment': '预约管理',
+    '/service': '服务项目',
+    '/membership-card': '会员卡管理',
+    '/recharge': '充值管理',
+    '/order': '订单管理',
+    '/beautician': '美容师管理',
+    '/schedule': '排班管理',
+    '/beautician-timeline': '预约看板',
+    '/campaign': '活动管理',
+    '/coupon': '优惠券管理',
+    '/system/permission': '权限管理',
+    '/system/log': '日志管理'
+  }
+  return titles[route.path] || '美容沙龙管理系统'
 })
 
-const loading = ref(false)
-
-const fetchStats = async () => {
-  loading.value = true
-  try {
-    const res = await getDashboardStats()
-    if (res.code === 200) {
-      stats.value = {
-        todayAppointments: res.data.todayAppointments || 0,
-        todayOrders: res.data.todayOrders || 0,
-        totalCustomers: res.data.totalCustomers || 0,
-        todayRevenue: res.data.todayRevenue || 0
-      }
-    }
-  } catch (error) {
-    console.error('获取首页数据失败', error)
-  } finally {
-    loading.value = false
-  }
+const handleProfile = () => {
+  ElMessage.info('个人中心功能开发中')
 }
 
-onMounted(() => {
-  fetchStats()
-})
+const handleChangePassword = () => {
+  ElMessage.info('修改密码功能开发中')
+}
+
+const handleLogout = () => {
+  ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    localStorage.removeItem('token')
+    Cookies.remove('beauty_salon_token', { path: '/' })
+    ElMessage.success('已退出登录')
+    router.push('/login')
+  }).catch(() => {})
+}
 </script>
 
 <style scoped>
 .home-container {
   height: 100vh;
-}
-
-.el-aside {
-  background-color: #304156;
-}
-
-.logo {
-  height: 60px;
-  line-height: 60px;
-  text-align: center;
-  color: white;
-  font-size: 18px;
-  font-weight: bold;
-  background-color: #263445;
-}
-
-.el-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: white;
-  border-bottom: 1px solid #e6e6e6;
-}
-
-.el-main {
-  background-color: #f0f2f5;
-  padding: 20px;
-}
-
-.stat-item {
-  text-align: center;
-}
-
-.stat-value {
-  font-size: 28px;
-  font-weight: bold;
-  color: #409eff;
-  margin-bottom: 10px;
-}
-
-.stat-label {
-  font-size: 14px;
-  color: #909399;
 }
 </style>

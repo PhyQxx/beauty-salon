@@ -1,6 +1,7 @@
 package com.beautysalon.config;
 
 import com.beautysalon.common.JwtUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * JWT 认证过滤器：从请求头提取 JWT Token，验证并填充 SecurityContext。
@@ -25,6 +28,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -35,8 +41,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 io.jsonwebtoken.Claims claims = jwtUtil.parseToken(token);
                 String username = (String) claims.get("username");
-                Integer role = (Integer) claims.get("role");
-                Object userId = claims.get("userId");
+                // JJWT 将 JSON 数字解析为 Long，需通过 Number 转换避免 ClassCastException
+                Object roleObj = claims.get("role");
+                Integer role = roleObj != null ? ((Number) roleObj).intValue() : null;
+                Object userIdObj = claims.get("userId");
+                Long userId = userIdObj != null ? ((Number) userIdObj).longValue() : null;
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
@@ -51,8 +60,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 request.setAttribute("currentUser", username);
                 request.setAttribute("currentUserId", userId);
                 request.setAttribute("currentRole", role);
+            } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                // Token 过期，返回 401，前端触发无感续期
+                SecurityContextHolder.clearContext();
+                sendUnauthorized(response, "Token已过期");
+                return;
             } catch (Exception e) {
-                // Token 无效或过期，不设置 SecurityContext（由后续 filter 处理 401）
+                // Token 无效，不设置 SecurityContext，继续由后续 filter 处理
                 SecurityContextHolder.clearContext();
             }
         }
@@ -60,11 +74,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    private void sendUnauthorized(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        Map<String, Object> result = new HashMap<>();
+        result.put("code", 401);
+        result.put("message", message);
+        response.getWriter().write(objectMapper.writeValueAsString(result));
+    }
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        // 登录/登出接口不需要 JWT 验证
+        // 登录/登出/刷新接口不需要 JWT 验证
         String uri = request.getRequestURI();
-        return "/api/sys/user/login".equals(uri) || "/api/sys/user/logout".equals(uri);
+        return "/api/sys/user/login".equals(uri)
+                || "/api/sys/user/logout".equals(uri)
+                || "/api/sys/user/refresh".equals(uri);
     }
 
     /**

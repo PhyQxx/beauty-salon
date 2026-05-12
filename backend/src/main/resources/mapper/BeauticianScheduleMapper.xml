@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.beautysalon.mapper.BeauticianScheduleMapper">
+
+    <resultMap id="BaseResultMap" type="com.beautysalon.entity.BeauticianSchedule">
+        <id column="id" property="id"/>
+        <result column="beautician_id" property="beauticianId"/>
+        <result column="work_date" property="workDate"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="break_start" property="breakStart"/>
+        <result column="break_end" property="breakEnd"/>
+        <result column="is_working" property="isWorking"/>
+        <result column="max_appointments" property="maxAppointments"/>
+        <result column="store_id" property="storeId"/>
+        <result column="remark" property="remark"/>
+        <result column="deleted" property="deleted"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="selectByBeauticianAndDateRange" resultMap="BaseResultMap">
+        SELECT * FROM beautician_schedule
+        WHERE deleted = 0
+        <if test="beauticianId != null">
+            AND beautician_id = #{beauticianId}
+        </if>
+        <if test="startDate != null">
+            AND work_date &gt;= #{startDate}
+        </if>
+        <if test="endDate != null">
+            AND work_date &lt;= #{endDate}
+        </if>
+        ORDER BY work_date DESC
+    </select>
+
+    <select id="selectByBeauticianAndDate" resultMap="BaseResultMap">
+        SELECT * FROM beautician_schedule
+        WHERE deleted = 0
+        AND beautician_id = #{beauticianId}
+        AND work_date = #{workDate}
+        LIMIT 1
+    </select>
+
+</mapper>

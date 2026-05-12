@@ -32,7 +32,7 @@ public class BeauticianController {
      * 分页查询美容师列表
      */
     @ApiOperation("分页查询美容师列表")
-    @GetMapping("/list")
+    @GetMapping
     public ResponseEntity<Map<String, Object>> list(
             @ApiParam(value = "页码", required = false) @RequestParam(defaultValue = "1") Integer page,
             @ApiParam(value = "每页数量", required = false) @RequestParam(defaultValue = "10") Integer limit,
@@ -40,6 +40,19 @@ public class BeauticianController {
             @ApiParam(value = "状态筛选", required = false) @RequestParam(required = false) Integer status) {
         Map<String, Object> result = beauticianService.queryBeauticianPage(page, limit, keyword, status);
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 分页查询美容师列表（兼容 /list 路径）
+     */
+    @ApiOperation("分页查询美容师列表")
+    @GetMapping("/list")
+    public ResponseEntity<Map<String, Object>> listAlias(
+            @ApiParam(value = "页码", required = false) @RequestParam(defaultValue = "1") Integer page,
+            @ApiParam(value = "每页数量", required = false) @RequestParam(defaultValue = "10") Integer limit,
+            @ApiParam(value = "关键词搜索", required = false) @RequestParam(required = false) String keyword,
+            @ApiParam(value = "状态筛选", required = false) @RequestParam(required = false) Integer status) {
+        return list(page, limit, keyword, status);
     }
 
     /**
@@ -126,6 +139,20 @@ public class BeauticianController {
             error.put("message", e.getMessage());
             return ResponseEntity.ok(error);
         }
+    }
+
+    /**
+     * 获取美容师简要列表（下拉框用）
+     */
+    @ApiOperation("获取美容师简要列表")
+    @GetMapping("/simple-list")
+    public ResponseEntity<Map<String, Object>> getSimpleList() {
+        List<Beautician> list = beauticianService.getActiveBeauticians();
+        Map<String, Object> result = new HashMap<>();
+        result.put("code", 200);
+        result.put("message", "查询成功");
+        result.put("data", list);
+        return ResponseEntity.ok(result);
     }
 
     /**

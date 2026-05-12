@@ -55,7 +55,7 @@ public class BeauticianServiceImpl implements BeauticianService {
 
         result.put("code", 200);
         result.put("message", "查询成功");
-        result.put("data", iPage.getRecords());
+        result.put("list", iPage.getRecords());
         result.put("total", iPage.getTotal());
         result.put("page", page);
         result.put("limit", limit);

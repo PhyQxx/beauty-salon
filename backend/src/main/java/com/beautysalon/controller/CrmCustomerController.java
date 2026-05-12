@@ -57,6 +57,20 @@ public class CrmCustomerController {
     }
 
     /**
+     * 获取客户简要列表（下拉框用）
+     */
+    @ApiOperation("获取客户简要列表")
+    @GetMapping("/simple-list")
+    public ResponseEntity<Map<String, Object>> getSimpleList() {
+        List<Map<String, Object>> list = customerService.getSimpleList();
+        Map<String, Object> result = new HashMap<>();
+        result.put("code", 200);
+        result.put("message", "查询成功");
+        result.put("data", list);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
      * 根据ID获取客户详情
      *
      * @param id 客户ID
@@ -293,8 +307,16 @@ public class CrmCustomerController {
     @PutMapping("/{id}/balance")
     public ResponseEntity<Map<String, Object>> adjustBalance(
             @ApiParam(value = "客户ID", required = true) @PathVariable Long id,
-            @ApiParam(value = "余额变化量", required = true) @RequestParam java.math.BigDecimal amount,
-            @ApiParam(value = "调整原因") @RequestParam(required = false) String reason) {
+            @RequestBody Map<String, Object> body) {
+        Object amountObj = body.get("amount");
+        if (amountObj == null) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("code", 400);
+            error.put("message", "缺少请求参数: amount");
+            return ResponseEntity.badRequest().body(error);
+        }
+        java.math.BigDecimal amount = new java.math.BigDecimal(amountObj.toString());
+        String reason = body.get("reason") != null ? body.get("reason").toString() : null;
         java.math.BigDecimal newBalance;
         if (amount.compareTo(java.math.BigDecimal.ZERO) > 0) {
             newBalance = customerService.recharge(id, amount, reason);

@@ -1,0 +1,94 @@
+package com.beautysalon.common;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.io.Serializable;
+
+/**
+ * 统一响应结果封装
+ * 所有 Controller 统一返回此对象，确保响应格式一致
+ *
+ * @param <T> 数据类型
+ */
+@Data
+@ApiModel(description = "统一响应结果")
+public class Result<T> implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 业务状态码：200-成功，其他-失败
+     */
+    @ApiModelProperty(value = "业务状态码")
+    private int code;
+
+    /**
+     * 响应消息
+     */
+    @ApiModelProperty(value = "响应消息")
+    private String message;
+
+    /**
+     * 响应数据
+     */
+    @ApiModelProperty(value = "响应数据")
+    private T data;
+
+    public Result() {
+    }
+
+    public Result(int code, String message, T data) {
+        this.code = code;
+        this.message = message;
+        this.data = data;
+    }
+
+    // ==================== 成功响应 ====================
+
+    public static <T> Result<T> success() {
+        return new Result<>(200, "操作成功", null);
+    }
+
+    public static <T> Result<T> success(T data) {
+        return new Result<>(200, "操作成功", data);
+    }
+
+    public static <T> Result<T> success(String message, T data) {
+        return new Result<>(200, message, data);
+    }
+
+    // ==================== 失败响应 ====================
+
+    public static <T> Result<T> error(String message) {
+        return new Result<>(500, message, null);
+    }
+
+    public static <T> Result<T> error(int code, String message) {
+        return new Result<>(code, message, null);
+    }
+
+    public static <T> Result<T> badRequest(String message) {
+        return new Result<>(400, message, null);
+    }
+
+    public static <T> Result<T> unauthorized(String message) {
+        return new Result<>(401, message, null);
+    }
+
+    public static <T> Result<T> forbidden(String message) {
+        return new Result<>(403, message, null);
+    }
+
+    public static <T> Result<T> notFound(String message) {
+        return new Result<>(404, message, null);
+    }
+
+    /**
+     * 判断是否成功
+     */
+    public boolean isSuccess() {
+        return code == 200;
+    }
+}

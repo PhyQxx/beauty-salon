@@ -90,7 +90,7 @@
     </el-card>
 
     <!-- 新增/编辑弹窗 -->
-    <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="600px" @close="handleDialogClose">
+    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="600px" @close="handleDialogClose">
       <el-form ref="formRef" :model="formData" :rules="formRules" label-width="100px">
         <el-form-item label="优惠券名称" prop="name">
           <el-input v-model="formData.name" placeholder="请输入优惠券名称" />
@@ -128,7 +128,7 @@
     </el-dialog>
 
     <!-- 详情弹窗 -->
-    <el-dialog title="优惠券详情" :visible.sync="detailVisible" width="700px">
+    <el-dialog title="优惠券详情" v-model="detailVisible" width="700px">
       <el-descriptions :column="2" border v-if="detailData">
         <el-descriptions-item label="优惠券名称">{{ detailData.name }}</el-descriptions-item>
         <el-descriptions-item label="优惠券类型">
@@ -156,7 +156,7 @@
     </el-dialog>
 
     <!-- 发放弹窗 -->
-    <el-dialog title="发放优惠券" :visible.sync="distributeVisible" width="500px">
+    <el-dialog title="发放优惠券" v-model="distributeVisible" width="500px">
       <el-form ref="distributeRef" :model="distributeForm" label-width="100px">
         <el-form-item label="优惠券">
           <span>{{ distributeForm.couponName }}</span>
