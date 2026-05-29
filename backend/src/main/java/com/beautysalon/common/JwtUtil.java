@@ -30,11 +30,12 @@ public class JwtUtil {
     /**
      * 生成 Access Token
      */
-    public String generateToken(Long userId, String username, Integer role) {
+    public String generateToken(Long userId, String username, Integer role, Long storeId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("username", username);
         claims.put("role", role);
+        claims.put("storeId", storeId);
         claims.put("tokenType", "access");
         return createToken(claims, username, expiration);
     }
@@ -42,11 +43,12 @@ public class JwtUtil {
     /**
      * 生成 Refresh Token
      */
-    public String generateRefreshToken(Long userId, String username, Integer role) {
+    public String generateRefreshToken(Long userId, String username, Integer role, Long storeId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("username", username);
         claims.put("role", role);
+        claims.put("storeId", storeId);
         claims.put("tokenType", "refresh");
         return createToken(claims, username, refreshExpiration);
     }
@@ -120,6 +122,18 @@ public class JwtUtil {
     public Integer getRoleFromToken(String token) {
         Object role = parseToken(token).get("role");
         return role != null ? ((Number) role).intValue() : null;
+    }
+
+    /**
+     * 获取门店ID从 Token
+     */
+    public Long getStoreIdFromToken(String token) {
+        Object storeId = parseToken(token).get("storeId");
+        if (storeId == null) return null;
+        if (storeId instanceof Integer) {
+            return ((Integer) storeId).longValue();
+        }
+        return (Long) storeId;
     }
 
     /**

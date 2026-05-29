@@ -85,6 +85,51 @@
       </el-col>
     </el-row>
 
+    <!-- 营业趋势图 -->
+    <el-row :gutter="20" style="margin-bottom: 24px;">
+      <el-col :span="24">
+        <el-card>
+          <template #header>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px; font-weight: 600;">
+                <el-icon><Histogram /></el-icon>
+                最近7日营收趋势
+              </div>
+              <el-radio-group v-model="chartTimeRange" size="small">
+                <el-radio-button label="7d">最近7天</el-radio-button>
+                <el-radio-button label="30d">最近30天</el-radio-button>
+              </el-radio-group>
+            </div>
+          </template>
+          <div class="revenue-chart-container">
+            <div class="chart-y-axis">
+              <span>¥3,000</span>
+              <span>¥2,000</span>
+              <span>¥1,000</span>
+              <span>0</span>
+            </div>
+            <div class="chart-content">
+              <div v-for="(item, index) in revenueData" :key="index" class="chart-bar-wrapper">
+                <div class="chart-bar-group">
+                  <div class="chart-bar revenue" :style="{ height: (item.revenue / 3000 * 100) + '%' }">
+                    <div class="chart-bar-tooltip">营收: ¥{{ item.revenue }}</div>
+                  </div>
+                  <div class="chart-bar order" :style="{ height: (item.orders * 50 / 3000 * 100) + '%' }">
+                    <div class="chart-bar-tooltip">订单: {{ item.orders }}</div>
+                  </div>
+                </div>
+                <div class="chart-label">{{ item.date }}</div>
+              </div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item"><span class="dot revenue" /> 营收金额</div>
+              <div class="legend-item"><span class="dot order" /> 订单数量</div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+
     <!-- 今日预约列表 -->
     <el-row :gutter="20">
       <el-col :xs="24" :lg="16">
@@ -141,17 +186,28 @@ import { ref, onMounted } from 'vue'
 import {
   Calendar, ShoppingCart, User, Money, Grid,
   List, ArrowRight, Bell, Plus, Ticket, Timer,
-  Present, FirstAidKit
+  Present, FirstAidKit, Histogram, TrendCharts
 } from '@element-plus/icons-vue'
 import { getDashboardStats } from '@/api/dashboard'
 
 const loading = ref(false)
+const chartTimeRange = ref('7d')
 const stats = ref({
   todayAppointments: 0,
   todayOrders: 0,
   totalCustomers: 0,
   todayRevenue: 0
 })
+
+const revenueData = ref([
+  { date: '05-23', revenue: 2100, orders: 12 },
+  { date: '05-24', revenue: 1850, orders: 10 },
+  { date: '05-25', revenue: 2400, orders: 15 },
+  { date: '05-26', revenue: 1200, orders: 8 },
+  { date: '05-27', revenue: 2800, orders: 18 },
+  { date: '05-28', revenue: 1500, orders: 9 },
+  { date: '今日', revenue: 2200, orders: 14 }
+])
 
 const quickEntries = [
   { label: '新建预约', path: '/appointment', icon: Plus, bgColor: '#fef1f3', iconColor: '#e85d75' },
@@ -209,6 +265,126 @@ onMounted(() => {
 .dashboard-container {
   padding: 0;
 }
+
+/* Revenue Chart */
+.revenue-chart-container {
+  height: 300px;
+  display: flex;
+  position: relative;
+  padding: 20px 10px 40px 60px;
+}
+
+.chart-y-axis {
+  position: absolute;
+  left: 0;
+  top: 20px;
+  bottom: 40px;
+  width: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #9ca3af;
+  font-size: 12px;
+  text-align: right;
+  border-right: 1px solid #e5e7eb;
+  padding-right: 10px;
+}
+
+.chart-content {
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 100%;
+}
+
+.chart-bar-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  position: relative;
+}
+
+.chart-bar-group {
+  width: 40px;
+  height: calc(100% - 20px);
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.chart-bar {
+  flex: 1;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  transition: all 0.3s ease;
+  min-height: 2px;
+}
+
+.chart-bar.revenue {
+  background: linear-gradient(180deg, #e85d75 0%, #ff8a9b 100%);
+}
+
+.chart-bar.order {
+  background: linear-gradient(180deg, #4a90e2 0%, #7eb3f1 100%);
+}
+
+.chart-bar:hover {
+  filter: brightness(1.1);
+  transform: scaleX(1.1);
+}
+
+.chart-bar-tooltip {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  display: none;
+  z-index: 10;
+}
+
+.chart-bar:hover .chart-bar-tooltip {
+  display: block;
+}
+
+.chart-label {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.chart-legend {
+  position: absolute;
+  bottom: 0;
+  right: 20px;
+  display: flex;
+  gap: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.dot.revenue { background: #e85d75; }
+.dot.order { background: #4a90e2; }
 
 .quick-entry-grid {
   display: grid;

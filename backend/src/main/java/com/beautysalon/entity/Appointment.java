@@ -22,6 +22,11 @@ public class Appointment {
     private Long id;
 
     /**
+     * 门店ID
+     */
+    private Long storeId;
+
+    /**
      * 预约单号 - 唯一编号
      */
     private String appointmentNo;

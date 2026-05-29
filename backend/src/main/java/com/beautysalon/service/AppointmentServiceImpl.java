@@ -1,9 +1,11 @@
 package com.beautysalon.service;
 
+import com.beautysalon.common.SecurityUtils;
 import com.beautysalon.dto.AppointmentCreateDTO;
 import com.beautysalon.dto.AppointmentQueryDTO;
 import com.beautysalon.entity.Appointment;
 import com.beautysalon.mapper.AppointmentMapper;
+import com.beautysalon.service.SysNotificationService;
 import com.beautysalon.vo.AppointmentVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,9 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Autowired
     private AppointmentMapper appointmentMapper;
+
+    @Autowired
+    private SysNotificationService notificationService;
 
     /**
      * 工作时间配置（可配置化）
@@ -114,6 +119,9 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // 6. 保存到数据库
         appointmentMapper.insert(appointment);
+
+        // 7. 发送异步通知
+        notificationService.sendAppointmentSuccess(appointment.getId());
 
         result.put("success", true);
         result.put("message", "预约创建成功");
@@ -232,6 +240,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public Map<String, Object> queryAppointmentPage(AppointmentQueryDTO queryDTO) {
         Map<String, Object> result = new HashMap<>();
+
+        // 数据隔离
+        if (!SecurityUtils.isSuperAdmin()) {
+            queryDTO.setStoreId(SecurityUtils.getCurrentStoreId());
+        }
 
         // 查询列表
         List<Appointment> list = appointmentMapper.selectList(queryDTO);
@@ -535,6 +548,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<AppointmentVO> getAppointmentsByCustomerId(Long customerId) {
         if (customerId == null) {
             return new ArrayList<>();
@@ -544,7 +558,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         queryDTO.setPage(1);
         queryDTO.setLimit(100); // 默认查询100条记录
         Map<String, Object> result = queryAppointmentPage(queryDTO);
-        List<AppointmentVO> list = (List<AppointmentVO>) result.get("list");
+        List<AppointmentVO> list = (List<AppointmentVO>) result.get("data");
         return list != null ? list : new ArrayList<>();
     }
 }

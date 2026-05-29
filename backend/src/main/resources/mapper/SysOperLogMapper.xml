@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.beautysalon.mapper.SysOperLogMapper">
+
+    <select id="selectPage" resultType="com.beautysalon.entity.SysOperLog">
+        SELECT * FROM sys_oper_log
+        WHERE 1=1
+        <if test="module != null and module != ''">
+            AND module = #{module}
+        </if>
+        <if test="operatorName != null and operatorName != ''">
+            AND operator_name LIKE CONCAT('%', #{operatorName}, '%')
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="beginTime != null">
+            AND operation_time &gt;= #{beginTime}
+        </if>
+        <if test="endTime != null">
+            AND operation_time &lt;= #{endTime}
+        </if>
+        ORDER BY operation_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countPage" resultType="long">
+        SELECT COUNT(*) FROM sys_oper_log
+        WHERE 1=1
+        <if test="module != null and module != ''">
+            AND module = #{module}
+        </if>
+        <if test="operatorName != null and operatorName != ''">
+            AND operator_name LIKE CONCAT('%', #{operatorName}, '%')
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="beginTime != null">
+            AND operation_time &gt;= #{beginTime}
+        </if>
+        <if test="endTime != null">
+            AND operation_time &lt;= #{endTime}
+        </if>
+    </select>
+
+</mapper>

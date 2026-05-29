@@ -6,6 +6,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 操作日志 Mapper 接口
+ * 
+ * @author BeautySalon Team
+ */
 @Mapper
 public interface SysOperLogMapper {
 
@@ -16,25 +21,18 @@ public interface SysOperLogMapper {
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(SysOperLog log);
 
-    @Select("<script>" +
-            "SELECT * FROM sys_oper_log WHERE 1=1 " +
-            "<if test='module != null and module != \"\"'> AND module = #{module} </if>" +
-            "<if test='operatorName != null and operatorName != \"\"'> AND operator_name LIKE CONCAT('%', #{operatorName}, '%') </if>" +
-            "<if test='status != null'> AND status = #{status} </if>" +
-            "<if test='beginTime != null'> AND operation_time &gt;= #{beginTime} </if>" +
-            "<if test='endTime != null'> AND operation_time &lt;= #{endTime} </if>" +
-            "ORDER BY operation_time DESC LIMIT #{offset}, #{limit}" +
-            "</script>")
+    /**
+     * 分页查询操作日志
+     * 实现在 SysOperLogMapper.xml 中
+     */
     List<SysOperLog> selectPage(Map<String, Object> params);
 
-    @Select("SELECT COUNT(*) FROM sys_oper_log WHERE 1=1 " +
-            "<if test='module != null and module != \"\"'> AND module = #{module} </if>" +
-            "<if test='operatorName != null and operatorName != \"\"'> AND operator_name LIKE CONCAT('%', #{operatorName}, '%') </if>" +
-            "<if test='status != null'> AND status = #{status} </if>" +
-            "<if test='beginTime != null'> AND operation_time &gt;= #{beginTime} </if>" +
-            "<if test='endTime != null'> AND operation_time &lt;= #{endTime} </if>")
+    /**
+     * 统计查询日志总数
+     * 实现在 SysOperLogMapper.xml 中
+     */
     long countPage(Map<String, Object> params);
 
-    @Delete("DELETE FROM sys_oper_log WHERE operation_time &lt; #{beforeTime}")
+    @Delete("DELETE FROM sys_oper_log WHERE operation_time < #{beforeTime}")
     int deleteBefore(@Param("beforeTime") LocalDateTime beforeTime);
 }

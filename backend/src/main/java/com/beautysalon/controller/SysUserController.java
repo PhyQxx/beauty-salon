@@ -68,9 +68,10 @@ public class SysUserController {
             Long userId = jwtUtil.getUserIdFromToken(refreshToken);
             String username = jwtUtil.getUsernameFromToken(refreshToken);
             Integer role = jwtUtil.getRoleFromToken(refreshToken);
+            Long storeId = jwtUtil.getStoreIdFromToken(refreshToken);
 
-            String newToken = jwtUtil.generateToken(userId, username, role);
-            String newRefreshToken = jwtUtil.generateRefreshToken(userId, username, role);
+            String newToken = jwtUtil.generateToken(userId, username, role, storeId);
+            String newRefreshToken = jwtUtil.generateRefreshToken(userId, username, role, storeId);
 
             Map<String, Object> result = new HashMap<>();
             result.put("token", newToken);

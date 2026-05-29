@@ -21,6 +21,11 @@ public class SysUser {
     private Long id;
 
     /**
+     * 所属门店ID
+     */
+    private Long storeId;
+
+    /**
      * 用户名，唯一标识
      */
     private String username;

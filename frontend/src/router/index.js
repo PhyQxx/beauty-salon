@@ -15,11 +15,14 @@ import Service from '@/views/Service.vue'
 import MembershipCard from '@/views/MembershipCard.vue'
 import Recharge from '@/views/Recharge.vue'
 import Order from '@/views/Order.vue'
+import Product from '@/views/Product.vue'
+import Inventory from '@/views/Inventory.vue'
 import Beautician from '@/views/Beautician.vue'
 import Schedule from '@/views/Schedule.vue'
 import BeauticianTimeline from '@/views/BeauticianTimeline.vue'
 import Permission from '@/views/system/Permission.vue'
 import SystemLog from '@/views/system/SystemLog.vue'
+import Store from '@/views/system/Store.vue'
 
 // 路由守卫：简单检查是否已登录
 const authGuard = (to, from, next) => {
@@ -91,6 +94,16 @@ const routes = [
         component: Order
       },
       {
+        path: '/product',
+        name: 'Product',
+        component: Product
+      },
+      {
+        path: '/inventory',
+        name: 'Inventory',
+        component: Inventory
+      },
+      {
         path: '/beautician',
         name: 'Beautician',
         component: Beautician
@@ -114,6 +127,11 @@ const routes = [
         path: '/system/log',
         name: 'SystemLog',
         component: SystemLog
+      },
+      {
+        path: '/system/store',
+        name: 'Store',
+        component: Store
       }
     ]
   }

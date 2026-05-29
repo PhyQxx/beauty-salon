@@ -6,6 +6,9 @@
     <select id="selectList" resultType="com.beautysalon.entity.Appointment">
         SELECT * FROM appointment
         WHERE deleted = 0
+        <if test="storeId != null">
+            AND store_id = #{storeId}
+        </if>
         <if test="appointmentNo != null and appointmentNo != ''">
             AND appointment_no = #{appointmentNo}
         </if>
@@ -37,6 +40,9 @@
     <select id="countList" resultType="int">
         SELECT COUNT(*) FROM appointment
         WHERE deleted = 0
+        <if test="storeId != null">
+            AND store_id = #{storeId}
+        </if>
         <if test="appointmentNo != null and appointmentNo != ''">
             AND appointment_no = #{appointmentNo}
         </if>

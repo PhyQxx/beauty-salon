@@ -1,5 +1,6 @@
 package com.beautysalon.service.impl;
 
+import com.beautysalon.common.SecurityUtils;
 import com.beautysalon.dto.OrderCreateDTO;
 import com.beautysalon.entity.PosOrder;
 import com.beautysalon.entity.PosOrderItem;
@@ -449,6 +450,11 @@ public class OrderServiceImpl implements OrderService {
         Map<String, Object> params = new HashMap<>();
         params.put("offset", (page - 1) * limit);
         params.put("limit", limit);
+        
+        // 数据隔离：如果不是超级管理员，只能查看自己门店的订单
+        if (!SecurityUtils.isSuperAdmin()) {
+            params.put("storeId", SecurityUtils.getCurrentStoreId());
+        }
         
         if (orderNo != null && !orderNo.isEmpty()) {
             params.put("orderNo", orderNo);

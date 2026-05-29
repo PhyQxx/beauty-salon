@@ -122,29 +122,57 @@
       </scroll-view>
     </view>
 
+    <!-- Skeleton Screen -->
+    <view v-if="loading" class="skeleton-wrapper">
+      <view class="skeleton-banner" />
+      <view class="skeleton-actions">
+        <view class="skeleton-action" v-for="i in 4" :key="i">
+          <view class="skeleton-circle" />
+          <view class="skeleton-text" />
+        </view>
+      </view>
+      <view class="skeleton-section" v-for="i in 2" :key="i">
+        <view class="skeleton-header" />
+        <view class="skeleton-row">
+          <view class="skeleton-card" v-for="j in 3" :key="j" />
+        </view>
+      </view>
+    </view>
+
     <!-- Bottom Spacing -->
     <view style="height: 40rpx;" />
-
-    <!-- Loading -->
-    <view v-if="loading" class="loading-overlay">
-      <view class="loading-spinner" />
-      <text>加载中...</text>
-    </view>
   </view>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
 import { getActiveServices } from '@/api/service'
 import { getActiveBeauticians } from '@/api/beautician'
 import { useMemberStore } from '@/store'
 
-const loading = ref(false)
+const loading = ref(true)
 const services = ref([])
 const beauticians = ref([])
 const memberStore = useMemberStore()
 
 const needLoginPages = ['/pages/member/index', '/pages/orders/index', '/pages/appointments/index']
+
+// WeChat Share
+onShareAppMessage(() => {
+  return {
+    title: '美悦沙龙 - 您的专业美容管家',
+    path: '/pages/home/index',
+    imageUrl: '/static/share-cover.png'
+  }
+})
+
+onShareTimeline(() => {
+  return {
+    title: '美悦沙龙 - 您的专业美容管家',
+    query: 'from=timeline'
+  }
+})
 
 const banners = ref([
   {
@@ -241,9 +269,12 @@ function loadStaticBeauticians() {
   ]
 }
 
-onMounted(() => {
-  fetchServices()
-  fetchBeauticians()
+onMounted(async () => {
+  loading.value = true
+  await Promise.all([fetchServices(), fetchBeauticians()])
+  setTimeout(() => {
+    loading.value = false
+  }, 600)
 })
 </script>
 
@@ -639,5 +670,88 @@ onMounted(() => {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Skeleton Screen */
+.skeleton-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  z-index: 100;
+  padding: 20rpx 24rpx;
+  box-sizing: border-box;
+}
+
+.skeleton-banner {
+  width: 100%;
+  height: 320rpx;
+  background: #f2f2f2;
+  border-radius: 24rpx;
+  margin-bottom: 32rpx;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-actions {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 40rpx;
+}
+
+.skeleton-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.skeleton-circle {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 28rpx;
+  background: #f2f2f2;
+  margin-bottom: 16rpx;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-text {
+  width: 80rpx;
+  height: 24rpx;
+  background: #f2f2f2;
+  border-radius: 4rpx;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-section {
+  margin-bottom: 40rpx;
+}
+
+.skeleton-header {
+  width: 200rpx;
+  height: 32rpx;
+  background: #f2f2f2;
+  margin-bottom: 24rpx;
+  border-radius: 4rpx;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-row {
+  display: flex;
+  gap: 20rpx;
+}
+
+.skeleton-card {
+  width: 220rpx;
+  height: 280rpx;
+  background: #f2f2f2;
+  border-radius: 20rpx;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
 }
 </style>

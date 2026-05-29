@@ -3,6 +3,7 @@ package com.beautysalon.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.beautysalon.common.SecurityUtils;
 import com.beautysalon.dto.CustomerCreateDTO;
 import com.beautysalon.dto.CustomerQueryDTO;
 import com.beautysalon.dto.CustomerUpdateDTO;
@@ -202,6 +203,11 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Map<String, Object> queryCustomerPage(CustomerQueryDTO queryDTO) {
         LambdaQueryWrapper<CrmCustomer> wrapper = new LambdaQueryWrapper<>();
+
+        // 数据隔离：如果不是超级管理员，只能查看自己门店的客户
+        if (!SecurityUtils.isSuperAdmin()) {
+            wrapper.eq(CrmCustomer::getStoreId, SecurityUtils.getCurrentStoreId());
+        }
 
         // 关键词搜索（姓名/手机号）
         if (StringUtils.hasText(queryDTO.getKeyword())) {
@@ -474,6 +480,12 @@ public class CustomerServiceImpl implements CustomerService {
     public List<Map<String, Object>> getSimpleList() {
         LambdaQueryWrapper<CrmCustomer> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(CrmCustomer::getDeleted, 0);
+
+        // 数据隔离
+        if (!SecurityUtils.isSuperAdmin()) {
+            wrapper.eq(CrmCustomer::getStoreId, SecurityUtils.getCurrentStoreId());
+        }
+
         wrapper.select(CrmCustomer::getId, CrmCustomer::getName, CrmCustomer::getPhone);
         List<CrmCustomer> list = customerMapper.selectList(wrapper);
         return list.stream().map(c -> {

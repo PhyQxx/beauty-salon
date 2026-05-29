@@ -46,6 +46,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Integer role = roleObj != null ? ((Number) roleObj).intValue() : null;
                 Object userIdObj = claims.get("userId");
                 Long userId = userIdObj != null ? ((Number) userIdObj).longValue() : null;
+                Object storeIdObj = claims.get("storeId");
+                Long storeId = storeIdObj != null ? ((Number) storeIdObj).longValue() : null;
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
@@ -53,13 +55,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 null,
                                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + (role != null && role == 1 ? "ADMIN" : "USER")))
                         );
-                authentication.setDetails(new JwtAuthDetails(userId, role));
+                authentication.setDetails(new JwtAuthDetails(userId, role, storeId));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 // 同时设置 request attributes 供 PermissionInterceptor 使用
                 request.setAttribute("currentUser", username);
                 request.setAttribute("currentUserId", userId);
                 request.setAttribute("currentRole", role);
+                request.setAttribute("currentStoreId", storeId);
             } catch (io.jsonwebtoken.ExpiredJwtException e) {
                 // Token 过期，返回 401，前端触发无感续期
                 SecurityContextHolder.clearContext();
@@ -99,13 +102,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         private static final long serialVersionUID = 1L;
         private final Object userId;
         private final Integer role;
+        private final Long storeId;
 
-        public JwtAuthDetails(Object userId, Integer role) {
+        public JwtAuthDetails(Object userId, Integer role, Long storeId) {
             this.userId = userId;
             this.role = role;
+            this.storeId = storeId;
         }
 
         public Object getUserId() { return userId; }
         public Integer getRole() { return role; }
+        public Long getStoreId() { return storeId; }
     }
 }

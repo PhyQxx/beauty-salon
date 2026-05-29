@@ -3,6 +3,7 @@ package com.beautysalon.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.beautysalon.common.SecurityUtils;
 import com.beautysalon.entity.Beautician;
 import com.beautysalon.mapper.BeauticianMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,11 @@ public class BeauticianServiceImpl implements BeauticianService {
 
         Page<Beautician> pageParam = new Page<>(page, limit);
         LambdaQueryWrapper<Beautician> wrapper = new LambdaQueryWrapper<>();
+
+        // 数据隔离
+        if (!SecurityUtils.isSuperAdmin()) {
+            wrapper.eq(Beautician::getStoreId, SecurityUtils.getCurrentStoreId());
+        }
 
         // 关键词搜索（姓名/工号/手机号）
         if (StringUtils.hasText(keyword)) {
@@ -138,6 +144,12 @@ public class BeauticianServiceImpl implements BeauticianService {
         LambdaQueryWrapper<Beautician> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Beautician::getStatus, 1);
         wrapper.eq(Beautician::getDeleted, 0);
+
+        // 数据隔离
+        if (!SecurityUtils.isSuperAdmin()) {
+            wrapper.eq(Beautician::getStoreId, SecurityUtils.getCurrentStoreId());
+        }
+
         wrapper.orderByDesc(Beautician::getLevel);
         return beauticianMapper.selectList(wrapper);
     }

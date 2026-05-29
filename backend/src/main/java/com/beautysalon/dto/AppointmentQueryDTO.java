@@ -130,6 +130,19 @@ public class AppointmentQueryDTO {
         this.keyword = keyword;
     }
 
+    public Long getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(Long storeId) {
+        this.storeId = storeId;
+    }
+
+    /**
+     * 门店ID - 数据隔离
+     */
+    private Long storeId;
+
     /**
      * 计算分页偏移量
      */

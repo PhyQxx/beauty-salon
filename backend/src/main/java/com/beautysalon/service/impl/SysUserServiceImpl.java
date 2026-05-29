@@ -104,8 +104,8 @@ public class SysUserServiceImpl implements SysUserService {
         }
 
         // 生成 Access Token 和 Refresh Token
-        String token = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getRole());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getUsername(), user.getRole());
+        String token = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getRole(), user.getStoreId());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getUsername(), user.getRole(), user.getStoreId());
 
         Map<String, Object> result = new HashMap<>();
         result.put("token", token);
@@ -114,6 +114,7 @@ public class SysUserServiceImpl implements SysUserService {
         result.put("username", user.getUsername());
         result.put("realName", user.getRealName());
         result.put("role", user.getRole());
+        result.put("storeId", user.getStoreId());
         result.put("roleText", ROLE_MAP.getOrDefault(user.getRole(), "未知"));
 
         log.info("用户登录成功: username={}, userId={}", username, user.getId());

@@ -94,6 +94,11 @@
     <!-- 新增/编辑弹窗 -->
     <el-dialog :title="dialogTitle" v-model="dialogVisible" width="600px" @close="handleDialogClose">
       <el-form ref="formRef" :model="formData" :rules="formRules" label-width="100px">
+        <el-form-item label="所属门店" prop="storeId" v-if="isSuperAdmin">
+          <el-select v-model="formData.storeId" placeholder="请选择门店" style="width: 100%">
+            <el-option v-for="item in storeList" :key="item.id" :label="item.name" :value="item.id" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="姓名" prop="name">
           <el-input v-model="formData.name" placeholder="请输入姓名" />
         </el-form-item>
@@ -167,12 +172,14 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getBeauticianList, getBeauticianById, addBeautician, updateBeautician, deleteBeautician } from '@/api/beautician'
+import { getSimpleStoreList } from '@/api/system/store'
 
 const loading = ref(false)
 const tableData = ref([])
+const storeList = ref([])
 const dialogVisible = ref(false)
 const detailVisible = ref(false)
 const dialogTitle = ref('新增美容师')
@@ -192,6 +199,7 @@ const pagination = reactive({
 
 const formData = reactive({
   id: null,
+  storeId: null,
   name: '',
   phone: '',
   gender: 0,
@@ -204,6 +212,20 @@ const formData = reactive({
 })
 
 const detailData = ref(null)
+
+const isSuperAdmin = computed(() => {
+  return localStorage.getItem('role') === '1'
+})
+
+const fetchStores = async () => {
+  if (!isSuperAdmin.value) return
+  try {
+    const res = await getSimpleStoreList()
+    storeList.value = res.data?.list || []
+  } catch (error) {
+    console.error('获取门店列表失败', error)
+  }
+}
 
 const formRules = {
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
@@ -340,6 +362,7 @@ const handleSubmit = async () => {
 
 onMounted(() => {
   fetchData()
+  fetchStores()
 })
 </script>
 

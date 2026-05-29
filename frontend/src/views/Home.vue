@@ -37,6 +37,14 @@
             <el-icon><ShoppingCart /></el-icon>
             <span>订单管理</span>
           </el-menu-item>
+          <el-menu-item index="/product">
+            <el-icon><Goods /></el-icon>
+            <span>产品管理</span>
+          </el-menu-item>
+          <el-menu-item index="/inventory">
+            <el-icon><Box /></el-icon>
+            <span>库存管理</span>
+          </el-menu-item>
           <el-menu-item index="/beautician">
             <el-icon><UserFilled /></el-icon>
             <span>美容师</span>
@@ -67,6 +75,10 @@
           <el-menu-item index="/system/log">
             <el-icon><Document /></el-icon>
             <span>日志管理</span>
+          </el-menu-item>
+          <el-menu-item index="/system/store">
+            <el-icon><Shop /></el-icon>
+            <span>门店管理</span>
           </el-menu-item>
         </el-menu>
       </div>
@@ -130,9 +142,9 @@ import Cookies from 'js-cookie'
 import {
   Odometer, User, Calendar, FirstAidKit, CreditCard,
   Money, ShoppingCart, UserFilled, Timer, Present,
-  Ticket, Lock, Document, Bell, Setting, ArrowDown,
-  Location, Key, SwitchButton, View
-} from '@element-plus/icons-vue'
+  Lock, Document, Bell, Setting, ArrowDown,
+  Location, Key, SwitchButton, View, Goods, Box, Shop
+  } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -147,13 +159,16 @@ const pageTitle = computed(() => {
     '/membership-card': '会员卡管理',
     '/recharge': '充值管理',
     '/order': '订单管理',
+    '/product': '产品管理',
+    '/inventory': '库存管理',
     '/beautician': '美容师管理',
     '/schedule': '排班管理',
     '/beautician-timeline': '预约看板',
     '/campaign': '活动管理',
     '/coupon': '优惠券管理',
     '/system/permission': '权限管理',
-    '/system/log': '日志管理'
+    '/system/log': '日志管理',
+    '/system/store': '门店管理'
   }
   return titles[route.path] || '美容沙龙管理系统'
 })

@@ -25,6 +25,11 @@ public class Beautician {
     private Long id;
 
     /**
+     * 门店ID
+     */
+    private Long storeId;
+
+    /**
      * 工号
      */
     private String code;
